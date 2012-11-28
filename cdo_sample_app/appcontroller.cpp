@@ -1,13 +1,10 @@
 #include "appcontroller.h"
 
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 #include <QDebug>
 #include <QTime>
 #include <cdohelpers.h>
 #include <time.h>
-
-#include <boost/lexical_cast.hpp>
 
 #include <sstream>
 
@@ -48,8 +45,6 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.authDetails.expires = time(NULL) + 300000;
     descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
 
-    //descr.token = ADLHelpers::stdString2ADLString(
-    //            boost::lexical_cast<std::string>(uId));
     descr.url = ADLHelpers::stdString2ADLString(
                 gStreamerBase + scopeId.toStdString());
 
@@ -264,10 +259,10 @@ QVariantMap devsMap2QVariantMap(const std::map<std::string,std::string> devs)
 {
     QVariantMap qDevs;
     std::pair<std::string, std::string> itm;
-    BOOST_FOREACH(itm, devs)
+    foreach(itm, devs)
     {
-        qDevs[QString::fromStdString(itm.first)] =
-                QString::fromStdString(itm.second);
+        qDevs[QString::fromUtf8(itm.first.c_str())] =
+                QString::fromUtf8(itm.second.c_str());
     }
     return qDevs;
 
