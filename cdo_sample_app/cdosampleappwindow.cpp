@@ -37,9 +37,8 @@ void CdoSampleAppWindow::onMediaDevicesListChanged(int devType,
 
     targetCombo->clear();
     QVariantMap::iterator i;
-    for(i=devs.begin(); i!= devs.end();i++)
+    for (i=devs.begin(); i!= devs.end();i++)
     {
-
         qDebug() << "Adding device: " << i.value();
         targetCombo->addItem(QIcon(), i.value().toString() ,i.key() );
     }
@@ -63,7 +62,7 @@ void CdoSampleAppWindow::onRemotePreviewSinkChanged(QString sinkId)
 {
     qDebug() << "Rendering remote sink with id: " << sinkId;
     ui->remoteRenderer->stopRender();
-    if(sinkId.length() > 0)
+    if(!sinkId.isEmpty())
     {
         ui->remoteRenderer->startRender(sinkId.toStdString());
     }
@@ -82,7 +81,7 @@ void CdoSampleAppWindow::onConnected()
 {
     qDebug() << "Connection established";
     ui->connectBtn->setEnabled(false);
-    ui->disconnectBtn->setEnabled(false);
+    ui->disconnectBtn->setEnabled(true);
     QString scopeId = ui->scopeIdTxt->text();
     bool publishAudio = ui->publishAudioChck->checkState() == Qt::Checked;
     bool publishVideo = ui->publishVideoChck->checkState() == Qt::Checked;
