@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QTime>
 #include <cdohelpers.h>
-
+#include <time.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -45,7 +45,7 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.authDetails.userId = uId;
     descr.authDetails.salt = ADLHelpers::stdString2ADLString(
                 "Some Salt");
-    descr.authDetails.expires = m.secsTo(QTime::currentTime()) + 300000;
+    descr.authDetails.expires = time(NULL) + 300000;
     descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
 
     //descr.token = ADLHelpers::stdString2ADLString(
@@ -57,11 +57,15 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.lowVideoStream.maxFps = 5;
     descr.lowVideoStream.maxHeight = 240;
     descr.lowVideoStream.maxWidth = 320;
+    descr.lowVideoStream.publish = true;
+    descr.lowVideoStream.receive = true;
 
     descr.highVideoStream.maxBitRate = 512;
     descr.highVideoStream.maxWidth = 640;
     descr.highVideoStream.maxHeight = 480;
     descr.highVideoStream.maxFps = 24;
+    descr.highVideoStream.publish = true;
+    descr.highVideoStream.receive = true;
     _scopeId = scopeId.toStdString();
     ADLConnectedHandler rh = boost::bind(&AppController::onConnected, this, _1);
     _cdoCtrl.connect(rh, &descr, scopeId.toStdString());
