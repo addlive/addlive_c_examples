@@ -143,7 +143,7 @@ var authDataBody =
         std::string signature = sha256::hash_hex(signatureRawBuilder.str());
         qDebug() << "Got signature: " << QString::fromStdString(signature);
     descr->authDetails.signature = ADLHelpers::stdString2ADLString(signature);
-    adl_connect(&CloudeoCtrl::onConnected, _platformHandle, descr, descr);
+    adl_connect(&CloudeoCtrl::onConnected, _platformHandle, copy, descr);
 }
 
 void CloudeoCtrl::disconnect(std::string scopeId)

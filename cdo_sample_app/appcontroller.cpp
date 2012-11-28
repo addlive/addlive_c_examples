@@ -48,8 +48,8 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.authDetails.expires = m.secsTo(QTime::currentTime()) + 300000;
     descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
 
-    descr.token = ADLHelpers::stdString2ADLString(
-                boost::lexical_cast<std::string>(uId));
+    //descr.token = ADLHelpers::stdString2ADLString(
+    //            boost::lexical_cast<std::string>(uId));
     descr.url = ADLHelpers::stdString2ADLString(
                 gStreamerBase + scopeId.toStdString());
 
