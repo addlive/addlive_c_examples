@@ -2,7 +2,7 @@
 #include "ui_cdosampleappwindow.h"
 #include <QDebug>
 
-#include <boost/foreach.hpp>
+
 CdoSampleAppWindow::CdoSampleAppWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CdoSampleAppWindow)

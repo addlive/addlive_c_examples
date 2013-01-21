@@ -3,18 +3,15 @@
 #include <cdohelpers.h>
 
 #include <string>
-#include <string.h>
-#include <windows.h>
 #include <QDebug>
+#include <QCoreApplication>
 
 #include <cryptlite/sha256.h>
 #include <cryptlite/hmac.h>
 
 #include <sstream>
 
-#define CLOUDEO_SDK_HOME "addlive_sdk"
-
-const std::string gLibsPath = CLOUDEO_SDK_HOME;
+const char* gLibsPath = "/AddLive_sdk-win";
 const std::string CloudeoCtrl::APP_SECRET = "AddLiveAPIKey_Be3eyOHLkHJGlw37w71XNPVvIk6zHP3giRqX2hVrqXjuOgNJQVLNyyDVqJTMV6wjYQnrnTVcLx9MTJilmGKvLgF2hw1SbtoWBSza";
 
 
@@ -24,16 +21,13 @@ CloudeoCtrl::CloudeoCtrl()
 
 void CloudeoCtrl::initPlatform(ADLReadyHandler readyHandler)
 {
-    char exePath[2048];
-    GetModuleFileNameA(NULL,exePath,2048);
-    int pathSize = strlen(exePath);
-    int dirPathSize = pathSize - strlen("adl_sample_app.exe");
-    std::string sdkPath(exePath, dirPathSize);
-    sdkPath += gLibsPath;
+    QString appDir = QCoreApplication::applicationDirPath();
+    appDir.append(QString(gLibsPath));
+
     ADLInitOptions options;
-    ADLHelpers::stdString2ADLString(&options.logicLibPath, sdkPath );
+    ADLHelpers::stdString2ADLString(&options.logicLibPath, appDir.toUtf8().data());
     _readyHandler = readyHandler;
-    adl_init_platform(&CloudeoCtrl::onPlatformReady,&options,this);
+    adl_init_platform(&CloudeoCtrl::onPlatformReady, &options, this);
 }
 
 void nopRHandler(void* o, const ADLError* e)
@@ -44,8 +38,6 @@ void CloudeoCtrl::addPlatformListener(ADLServiceListener* listener)
 {
     adl_add_service_listener(&nopRHandler,_platformHandle, this, listener);
 }
-
-
 
 void CloudeoCtrl::getVideoCaptureDeviceNames(ADLDevsHandler resultHandler)
 {
@@ -121,27 +113,15 @@ void CloudeoCtrl::connect(ADLConnectedHandler rH,
     ADLConnectedHandler* copy = new ADLConnectedHandler();
     memcpy(copy, &rH, sizeof(*copy));
 
-    /*
-var authDataBody =
-        APP_ID + // application id
-            roomId + // scope
-            tokenId + // user id
-            authDetails.salt + // salt
-            validUntil + // valid until timestamp
-            SHARED_SECRET;         // shared secret
-
-*/
     std::stringstream signatureRawBuilder;
-        signatureRawBuilder << APP_ID << scopeId <<
+    signatureRawBuilder << APP_ID << scopeId <<
         descr->authDetails.userId <<
-           ADLHelpers::ADLString2Std(&(descr->authDetails.salt)) <<
-           descr->authDetails.expires << APP_SECRET;
+        ADLHelpers::ADLString2Std(&(descr->authDetails.salt)) <<
+        descr->authDetails.expires << APP_SECRET;
 
-
-
-        using namespace cryptlite;
-        std::string signature = sha256::hash_hex(signatureRawBuilder.str());
-        qDebug() << "Got signature: " << QString::fromStdString(signature);
+    using namespace cryptlite;
+    std::string signature = sha256::hash_hex(signatureRawBuilder.str());
+    qDebug() << "Got signature: " << QString::fromStdString(signature);
     descr->authDetails.signature = ADLHelpers::stdString2ADLString(signature);
     adl_connect(&CloudeoCtrl::onConnected, _platformHandle, copy, descr);
 }

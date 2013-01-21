@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <iostream>
 #include <Windows.h>
+
+
 RenderingWidget::RenderingWidget(QWidget *parent) :
     QWidget(parent), _started(false)
 {

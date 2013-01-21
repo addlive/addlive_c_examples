@@ -32,8 +32,9 @@ FORMS    += cdosampleappwindow.ui
 BOOST_HOME = $$PWD/../../../adl_libs/include/boost-1_49
 ADL_HOME = $$PWD/../AddLive_sdk-win
 
-win32: LIBS += -L$$ADL_HOME -lcdo_sdk
+win32: LIBS += -L$$ADL_HOME -ladl_sdk
 
 INCLUDEPATH += $$ADL_HOME
 INCLUDEPATH += $$BOOST_HOME
-DEPENDPATH += $$PWD/../../../smbuild/native_api/cloudeo_sdk_1.16.2.1
+INCLUDEPATH += $$(BOOST_ROOT)/include/boost-1_49
+#DEPENDPATH += $$PWD/../../../smbuild/native_api/cloudeo_sdk_1.16.2.1
