@@ -4,7 +4,7 @@ Sample application for AddLive desktop SDK on Qt
 Build instructions:
 
 - clone this repo
-- download https://s3.amazonaws.com/api.addlive.com/beta/AddLive\_sdk-win.zip and unpack to cloned repo root ( as is, i.e. it should be a directory in the repo root)
+- download https://s3.amazonaws.com/api.addlive.com/beta/AddLive_sdk-win.zip and unpack to cloned repo root ( as is, i.e. it should be a directory in the repo root)
 - install Qt SDK with QtCreator
 - open cdo\_sample\_app/cdo\_sample\_app.pro in QtCreator
 - download boost library (boost.org)
