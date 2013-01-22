@@ -24,13 +24,13 @@ void CloudeoCtrl::initPlatform(ADLReadyHandler readyHandler)
     QString appDir = QCoreApplication::applicationDirPath();
     appDir.append(QString(gLibsPath));
 
-    ADLInitOptions options;
+    ADLInitOptions options = {0};
     ADLHelpers::stdString2ADLString(&options.logicLibPath, appDir.toUtf8().data());
     _readyHandler = readyHandler;
     adl_init_platform(&CloudeoCtrl::onPlatformReady, &options, this);
 }
 
-void nopRHandler(void* o, const ADLError* e)
+void nopRHandler(void*, const ADLError*)
 {
 }
 
@@ -103,7 +103,6 @@ void CloudeoCtrl::startLocalVideo(ADLLocalVideoStartedHandler rH)
     memcpy(copy, &rH, sizeof(*copy));
     adl_start_local_video(&CloudeoCtrl::onLocalPreviewStarted, _platformHandle,
                           copy);
-
 }
 
 
@@ -146,12 +145,9 @@ void CloudeoCtrl::unpublish(std::string scopeId, std::string what)
 {
     ADLString cdoScopeId = ADLHelpers::stdString2ADLString(scopeId);
     ADLString cdoWhat = ADLHelpers::stdString2ADLString(what);
-
     adl_unpublish(&CloudeoCtrl::nopRHandler,_platformHandle,0,
                 &cdoScopeId, &cdoWhat);
-
 }
-
 
 void CloudeoCtrl::onPlatformReady(void* o, const ADLError* err, ADLH h)
 {
@@ -159,7 +155,7 @@ void CloudeoCtrl::onPlatformReady(void* o, const ADLError* err, ADLH h)
     if(adl_no_error(err))
     {
         ctrl->_platformHandle = h;
-        adl_set_application_id(&CloudeoCtrl::onAppIdSet,h, ctrl, APP_ID);
+        adl_set_application_id(&CloudeoCtrl::onAppIdSet, h, ctrl, APP_ID);
         adl_get_version(&CloudeoCtrl::onVersion,h, ctrl);
     }
     else
@@ -172,7 +168,7 @@ void CloudeoCtrl::onPlatformReady(void* o, const ADLError* err, ADLH h)
     }
 }
 
-void CloudeoCtrl::onVersion(void* o, const ADLError* e, const ADLString* v)
+void CloudeoCtrl::onVersion(void* o, const ADLError*, const ADLString* v)
 {
     CloudeoCtrl* ctrl = (CloudeoCtrl*) o;
     try
@@ -185,12 +181,12 @@ void CloudeoCtrl::onVersion(void* o, const ADLError* e, const ADLString* v)
 }
 
 
-void CloudeoCtrl::onDevices(void* o, const ADLError* e,
+void CloudeoCtrl::onDevices(void* o, const ADLError*,
                             ADLDevice* devs, size_t len)
 {
     ADLDevsHandler* rH = (ADLDevsHandler*) o;
     std::map<std::string,std::string> result;
-    for(int i=0;i<len;i++)
+    for(unsigned i=0; i < len; i++)
     {
         std::string id = ADLHelpers::ADLString2Std(&(devs[i].id));
         std::string label = ADLHelpers::ADLString2Std(&(devs[i].label));
@@ -200,14 +196,14 @@ void CloudeoCtrl::onDevices(void* o, const ADLError* e,
     delete rH;
 }
 
-void CloudeoCtrl::onSetDevice(void* o, const ADLError* e)
+void CloudeoCtrl::onSetDevice(void* o, const ADLError*)
 {
     ADLSetDevHandler* rH = (ADLSetDevHandler*) o;
     (*rH)();
     delete rH;
 }
 
-void CloudeoCtrl::onLocalPreviewStarted(void* o, const ADLError* e,
+void CloudeoCtrl::onLocalPreviewStarted(void* o, const ADLError*,
                                         const ADLString* v)
 {
     ADLLocalVideoStartedHandler* rH = (ADLLocalVideoStartedHandler*) o;
@@ -226,7 +222,7 @@ void CloudeoCtrl::onConnected(void* o, const ADLError* e)
 
 }
 
-void CloudeoCtrl::onAppIdSet(void* o, const ADLError* e)
+void CloudeoCtrl::onAppIdSet(void*, const ADLError*)
 {
     qDebug() << "Application ID set";
 }
