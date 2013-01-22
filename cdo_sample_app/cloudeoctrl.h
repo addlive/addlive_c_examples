@@ -57,7 +57,7 @@ public:
 private:
 
 
-    static void nopRHandler(void* o, const ADLError* e){}
+    static void nopRHandler(void*, const ADLError*){}
 
     static const long long APP_ID = 2;
     static const std::string APP_SECRET;

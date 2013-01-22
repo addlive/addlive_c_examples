@@ -89,7 +89,7 @@ void RenderingWidget::invalidateClbck(void* o)
     ((RenderingWidget*)o)->invalidateClbckImpl();
 }
 
-void RenderingWidget::renderStarted(void* o, const ADLError* err,
+void RenderingWidget::renderStarted(void* o, const ADLError*,
                                     int rendererId)
 {
     RenderingWidget* _this = (RenderingWidget*) o;
@@ -97,7 +97,7 @@ void RenderingWidget::renderStarted(void* o, const ADLError* err,
     _this->_started = true;
 }
 
-void RenderingWidget::renderStopped(void* o , const ADLError* err)
+void RenderingWidget::renderStopped(void* o , const ADLError*)
 {
     RenderingWidget* _this = (RenderingWidget*) o;
     _this->sinkId = "";
