@@ -7,8 +7,7 @@ ADLHelpers::ADLHelpers()
 
 void ADLHelpers::stdString2ADLString(ADLString* target, const std::string& src)
 {
-    strncpy_s(target->body, ADL_STRING_MAX_LEN, src.c_str(),
-          src.length());
+    strncpy(target->body, src.c_str(), ADL_STRING_MAX_LEN);
     target->length = src.length();
 }
 

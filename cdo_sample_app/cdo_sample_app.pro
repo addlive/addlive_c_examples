@@ -30,11 +30,19 @@ HEADERS  += cdosampleappwindow.h \
 FORMS    += cdosampleappwindow.ui
 
 BOOST_HOME = $$PWD/../../../adl_libs/include/boost-1_49
-ADL_HOME = $$PWD/../AddLive_sdk-win
+win32: ADL_HOME = $$PWD/../AddLive_sdk-win
+unix:!macx {
+    ADL_HOME = $$PWD/../AddLive_sdk-linux
+}
 
-win32: LIBS += -L$$ADL_HOME -ladl_sdk
+LIBS += -L$$ADL_HOME -ladl_sdk
+unix:!macx {
+    LIBS += -L$$ADL_HOME -L/home/dmitry/smlibs/libs  -ladl_sdk_logic -ladl_stub -lsmplogic -lsmpmedia  -lsmpcommunication  -lsmcommon  -ljsoncpp_common\
+        -lboost_system -lboost_serialization -lboost_log -lboost_program_options -lboost_date_time\
+        -lboost_chrono -lboost_thread -lboost_filesystem -lprotobuf-lite -lwebrtc_voice -lvorbisenc -logg -lswscale -lavutil -lortp -lvpx -lwebm -lcrypto -lcurl
+    INCLUDEPATH += $$(CLOUDEO_LIBS_HOME)/include
+}
 
 INCLUDEPATH += $$ADL_HOME
 INCLUDEPATH += $$BOOST_HOME
-INCLUDEPATH += $$(BOOST_ROOT)/include/boost-1_49
-#DEPENDPATH += $$PWD/../../../smbuild/native_api/cloudeo_sdk_1.16.2.1
+

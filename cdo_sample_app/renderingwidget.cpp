@@ -5,7 +5,10 @@
 #include <QPaintEngine>
 #include <QPainter>
 #include <iostream>
+
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 
 
 RenderingWidget::RenderingWidget(QWidget *parent) :
@@ -69,8 +72,10 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
         req.rendererId = _rendererId;
 
         QPainter painter(this);
+#ifdef _WIN32
         HDC hdc = painter.paintEngine()->getDC();
         req.windowHandle = hdc;
+#endif
 
         adl_draw(_platformHandle, &req);
     }

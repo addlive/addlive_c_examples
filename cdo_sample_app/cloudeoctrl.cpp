@@ -42,7 +42,7 @@ void CloudeoCtrl::addPlatformListener(ADLServiceListener* listener)
 void CloudeoCtrl::getVideoCaptureDeviceNames(ADLDevsHandler resultHandler)
 {
     ADLDevsHandler * copy = new ADLDevsHandler();
-    memcpy(copy, &resultHandler, sizeof(*copy));
+    *copy = resultHandler;
     adl_get_video_capture_device_names(&CloudeoCtrl::onDevices,_platformHandle,
                                        copy);
 }
@@ -50,7 +50,7 @@ void CloudeoCtrl::getVideoCaptureDeviceNames(ADLDevsHandler resultHandler)
 void CloudeoCtrl::getAudioCaptureDeviceNames(ADLDevsHandler  resultHandler)
 {
     ADLDevsHandler * copy = new ADLDevsHandler();
-    memcpy(copy, &resultHandler, sizeof(*copy));
+    *copy = resultHandler;
     adl_get_audio_capture_device_names(&CloudeoCtrl::onDevices,_platformHandle,
                                        copy);
 }
@@ -58,7 +58,7 @@ void CloudeoCtrl::getAudioCaptureDeviceNames(ADLDevsHandler  resultHandler)
 void CloudeoCtrl::getAudioOutputDeviceNames(ADLDevsHandler resultHandler)
 {
     ADLDevsHandler * copy = new ADLDevsHandler();
-    memcpy(copy, &resultHandler, sizeof(*copy));
+    *copy = resultHandler;
     adl_get_audio_output_device_names(&CloudeoCtrl::onDevices,_platformHandle,
                                        copy);
 }
@@ -67,7 +67,7 @@ void CloudeoCtrl::setVideoCaptureDevice(ADLSetDevHandler rH, std::string dev)
 {
     ADLString devId = ADLHelpers::stdString2ADLString(dev);
     ADLSetDevHandler * copy = new ADLSetDevHandler();
-    memcpy(copy, &rH, sizeof(*copy));
+    *copy = rH;
 
     adl_set_video_capture_device(&CloudeoCtrl::onSetDevice, _platformHandle,
                                  copy, &devId);
@@ -77,7 +77,7 @@ void CloudeoCtrl::setAudioCaptureDevice(ADLSetDevHandler rH,std::string dev)
 {
     ADLString devId = ADLHelpers::stdString2ADLString(dev);
     ADLSetDevHandler * copy = new ADLSetDevHandler();
-    memcpy(copy, &rH, sizeof(*copy));
+    *copy = rH;
     adl_set_audio_capture_device(&CloudeoCtrl::onSetDevice, _platformHandle,
                                  copy, &devId);
 }
@@ -86,7 +86,7 @@ void CloudeoCtrl::setAudioOutputDevice(ADLSetDevHandler rH, std::string dev)
 {
     ADLString devId = ADLHelpers::stdString2ADLString(dev);
     ADLSetDevHandler * copy = new ADLSetDevHandler();
-    memcpy(copy, &rH, sizeof(*copy));
+    *copy = rH;
     adl_set_audio_output_device(&CloudeoCtrl::onSetDevice, _platformHandle,
                                  copy, &devId);
 }
@@ -100,7 +100,7 @@ void CloudeoCtrl::playTestSound()
 void CloudeoCtrl::startLocalVideo(ADLLocalVideoStartedHandler rH)
 {
     ADLLocalVideoStartedHandler * copy = new ADLLocalVideoStartedHandler();
-    memcpy(copy, &rH, sizeof(*copy));
+    *copy = rH;
     adl_start_local_video(&CloudeoCtrl::onLocalPreviewStarted, _platformHandle,
                           copy);
 }
@@ -110,7 +110,7 @@ void CloudeoCtrl::connect(ADLConnectedHandler rH,
                           ADLConnectionDescriptor* descr, std::string scopeId)
 {
     ADLConnectedHandler* copy = new ADLConnectedHandler();
-    memcpy(copy, &rH, sizeof(*copy));
+    *copy = rH;
 
     std::stringstream signatureRawBuilder;
     signatureRawBuilder << APP_ID << scopeId <<
@@ -176,7 +176,7 @@ void CloudeoCtrl::onVersion(void* o, const ADLError*, const ADLString* v)
         ctrl->_readyHandler(ctrl->_platformHandle, std::string(v->body, v->length));
     } catch(const std::exception& exception)
     {
-        qDebug() << "Got an exxception: " << exception.what();
+        qDebug() << "Got an exception: " << exception.what();
     }
 }
 

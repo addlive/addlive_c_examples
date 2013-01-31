@@ -170,7 +170,7 @@ void AppController::onVideoDevices(std::map<std::string,std::string> devs,
 {
     qDebug() << "Got video devices list containing " << devs.size() << " items";
     emit mediaDevicesListChanged(VIDEO_IN, devsMap2QVariantMap(devs));
-    if(firstRun)
+    if (firstRun && devs.size())
     {
         qDebug() << "Setting video capture device";
         ADLSetDevHandler rh =
@@ -184,7 +184,7 @@ void AppController::onAudioCaptureDevices(
 {
     qDebug() << "Got video devices list containing " << devs.size() << " items";
     emit mediaDevicesListChanged(AUDIO_IN, devsMap2QVariantMap(devs));
-    if(firstRun)
+    if (firstRun && devs.size())
     {
         qDebug() << "Setting audio capture device";
         _cdoCtrl.setAudioCaptureDevice(&nop, devs.begin()->first);
