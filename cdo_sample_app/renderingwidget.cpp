@@ -5,14 +5,17 @@
 #include <QPaintEngine>
 #include <QPainter>
 #include <iostream>
+#include <cassert>
 
 #ifdef _WIN32
 #include <Windows.h>
 #endif
 
 
+// FIXME: protect _started and _rendererId with mutex
+
 RenderingWidget::RenderingWidget(QWidget *parent) :
-    QWidget(parent), _started(false)
+    QWidget(parent), _rendererId(0), _started(false)
 {
     setAttribute(Qt::WA_PaintOnScreen, true);
 }
@@ -72,9 +75,15 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
         req.rendererId = _rendererId;
 
         QPainter painter(this);
-#ifdef _WIN32
+
+#ifdef Q_WS_WIN
         HDC hdc = painter.paintEngine()->getDC();
         req.windowHandle = hdc;
+#elif defined(Q_WS_X11)
+        QPaintDevice *device = painter.device();
+
+        Qt::HANDLE h = x11PictureHandle();
+        assert(h);
 #endif
 
         adl_draw(_platformHandle, &req);

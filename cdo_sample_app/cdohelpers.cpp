@@ -25,7 +25,7 @@ std::string ADLHelpers::ADLString2Std(const ADLString* src)
 
 QString ADLHelpers::ADLString2QString(const ADLString* src)
 {
-    return QString::fromAscii(src->body, src->length);
+    return QString::fromUtf8(src->body, src->length);
 }
 
 

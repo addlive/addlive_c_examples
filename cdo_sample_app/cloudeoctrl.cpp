@@ -24,7 +24,7 @@ void CloudeoCtrl::initPlatform(ADLReadyHandler readyHandler)
     QString appDir = QCoreApplication::applicationDirPath();
     appDir.append(QString(gLibsPath));
 
-    ADLInitOptions options = {0};
+    ADLInitOptions options = {{0},{0}};
     ADLHelpers::stdString2ADLString(&options.logicLibPath, appDir.toUtf8().data());
     _readyHandler = readyHandler;
     adl_init_platform(&CloudeoCtrl::onPlatformReady, &options, this);
@@ -196,16 +196,24 @@ void CloudeoCtrl::onDevices(void* o, const ADLError*,
     delete rH;
 }
 
-void CloudeoCtrl::onSetDevice(void* o, const ADLError*)
+void CloudeoCtrl::onSetDevice(void* o, const ADLError* err)
 {
     ADLSetDevHandler* rH = (ADLSetDevHandler*) o;
-    (*rH)();
+    if (err->err_code != 0)
+    {
+        qDebug() << "Failed to set device, error: " << err->err_code << "; " << err->err_message.body;
+    }
+    else
+    {
+        (*rH)();
+    }
     delete rH;
 }
 
 void CloudeoCtrl::onLocalPreviewStarted(void* o, const ADLError*,
                                         const ADLString* v)
 {
+    qDebug() << "CloudeoCtrl::onLocalPreviewStarted";
     ADLLocalVideoStartedHandler* rH = (ADLLocalVideoStartedHandler*) o;
     (*rH)(ADLHelpers::ADLString2Std(v));
     delete rH;

@@ -15,6 +15,7 @@ void nop(){}
 
 // Dev layer streamer
 const std::string gStreamerBase = "174.127.76.179:443/";
+//const std::string gStreamerBase = "192.168.1.33:7000/";
 }
 
 AppController::AppController(QObject *parent) :
@@ -39,6 +40,7 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     QTime m(0,0,0);
     qsrand(m.secsTo(QTime::currentTime()));
     int uId = qrand() % 1000;
+
     descr.authDetails.userId = uId;
     descr.authDetails.salt = ADLHelpers::stdString2ADLString(
                 "Some Salt");
@@ -172,7 +174,8 @@ void AppController::onVideoDevices(std::map<std::string,std::string> devs,
     emit mediaDevicesListChanged(VIDEO_IN, devsMap2QVariantMap(devs));
     if (firstRun && devs.size())
     {
-        qDebug() << "Setting video capture device";
+        qDebug() << "Setting video capture device " << devs.begin()->first.c_str()
+                 << ": " << devs.begin()->second.c_str();
         ADLSetDevHandler rh =
                 boost::bind(&AppController::onVideoDeviceSet, this, firstRun);
         _cdoCtrl.setVideoCaptureDevice(rh, devs.begin()->first);
@@ -182,7 +185,7 @@ void AppController::onVideoDevices(std::map<std::string,std::string> devs,
 void AppController::onAudioCaptureDevices(
         std::map<std::string,std::string> devs,bool firstRun)
 {
-    qDebug() << "Got video devices list containing " << devs.size() << " items";
+    qDebug() << "Got audio capture devices list containing " << devs.size() << " items";
     emit mediaDevicesListChanged(AUDIO_IN, devsMap2QVariantMap(devs));
     if (firstRun && devs.size())
     {
@@ -194,7 +197,7 @@ void AppController::onAudioCaptureDevices(
 void AppController::onAudioOutputDevices(
         std::map<std::string,std::string> devs, bool firstRun)
 {
-    qDebug() << "Got video devices list containing " << devs.size() << " items";
+    qDebug() << "Got audio output devices list containing " << devs.size() << " items";
     emit mediaDevicesListChanged(AUDIO_OUT, devsMap2QVariantMap(devs));
     if(firstRun)
     {

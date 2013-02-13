@@ -46,3 +46,6 @@ unix:!macx {
 INCLUDEPATH += $$ADL_HOME
 INCLUDEPATH += $$BOOST_HOME
 
+#QMAKE_CXXFLAGS += -fsanitize=thread -fPIE
+#QMAKE_LFLAGS += -pie -fsanitize=thread
+
