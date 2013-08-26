@@ -67,16 +67,8 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
 {
     if (_started)
     {
-        ADLDrawRequest req;
-
-        QRect r;
-        if(e)
-            r = e->rect();
-        else
-            r = rect();
-        QRect geo = geometry();
-        QRect frameGeo = frameGeometry();
         QPoint global = mapTo(nativeParentWidget(), QPoint(0,0));
+        ADLDrawRequest req;
         req.left = global.x();
         req.right = req.left + width();
         req.top = global.y();
@@ -96,8 +88,17 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
     }
     else
     {
+        QRect r;
+        if (e)
+            r = e->rect();
+        else
+            r = rect();
         QPainter painter(this);
+        painter.setBackgroundMode(Qt::OpaqueMode);
+        painter.setBrush(Qt::SolidPattern);
         painter.setBackground(QBrush(QColor::fromRgb(120,120,120)));
+
+        painter.drawRect(r);
         painter.drawText(QRectF(0, 0, 200, 20), QString("Waiting for a frame..."));
     }
 }

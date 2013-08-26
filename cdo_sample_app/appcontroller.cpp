@@ -40,17 +40,17 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     int uId = qrand() % 1000;
 
     descr.authDetails.userId = uId;
-    descr.authDetails.salt = ADLHelpers::stdString2ADLString("Some Salt");
+    descr.authDetails.salt = ADLHelpers::stdString2ADLString("Some Salt 323234#@");
     descr.authDetails.expires = time(NULL) + 300000;
     descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
 
     descr.url = ADLHelpers::stdString2ADLString(
                 addlive::gStreamerAddress + "/" + scopeId.toStdString());
 
-    descr.videoStream.maxWidth = 1280;
-    descr.videoStream.maxHeight = 720;
-    descr.videoStream.maxFps = 30;
-    descr.videoStream.useAdaptation = true;
+    descr.videoStream.maxWidth = addlive::gMaxVideoWidth;
+    descr.videoStream.maxHeight = addlive::gMaxVideoHeight;
+    descr.videoStream.maxFps = addlive::gMaxFps;
+    descr.videoStream.useAdaptation = addlive::gUseAdaptation;
 
     _scopeId = scopeId.toStdString();
     ADLConnectedHandler rh = boost::bind(&AppController::onConnected, this, _1);

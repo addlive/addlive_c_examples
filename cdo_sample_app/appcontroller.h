@@ -44,7 +44,7 @@ signals:
 
     void cdoReady(void* ph, QString v);
     
-    void mediaDevicesListChanged(int,QVariantMap);
+    void mediaDevicesListChanged(int, QVariantMap);
 
     void localVideoSinkChanged(QString);
     void remoteVideoSinkChanged(QString);

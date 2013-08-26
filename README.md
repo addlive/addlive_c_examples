@@ -16,5 +16,5 @@ Build instructions:
 - copy QtCore4.dll and QtGui4.dll to the executable directory
 - now you can run sample application
 
-Currently works only on Windows XP, Vista, 7, 8.
+Currently works only on Windows XP, Vista, 7, 8 and for two users in the scope maximum.
 
