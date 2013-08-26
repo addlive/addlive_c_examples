@@ -3,6 +3,7 @@
 #include <QPaintEvent>
 #include <QPaintEngine>
 #include <QPainter>
+#include <QDebug>
 #include <iostream>
 #include <cassert>
 
@@ -11,29 +12,37 @@
 #endif
 
 
-// FIXME: protect _started and _rendererId with mutex
-
 RenderingWidget::RenderingWidget(QWidget *parent) :
     QWidget(parent), _rendererId(0), _started(false)
 {
     setAttribute(Qt::WA_PaintOnScreen, true);
+
+    QObject::connect(this, SIGNAL(renderStartedSignal(int)),
+                     this,  SLOT(renderStartedSlot(int)));
+    QObject::connect(this, SIGNAL(renderStoppedSignal()),
+                     this,  SLOT(renderStoppedSlot()));
 }
 
 
-void RenderingWidget::startRender(std::string sinkId)
+void RenderingWidget::startRender(const std::string& sinkId)
 {
     if (_started)
     {
-        _sinkIdToBeRendered = sinkId;
+        // new renderer started as soon as old one stopped
+        _deferredSinkId = sinkId;
         stopRender();
+        return;
     }
+
+    qDebug() << "Starting renderer on sink " << sinkId.c_str();
+
     ADLRenderRequest rRequest;
     ADLHelpers::stdString2ADLString(&rRequest.sinkId, sinkId);
     ADLHelpers::stdString2ADLString(&rRequest.filter, "fast_bilinear");
     rRequest.mirror = true; rRequest.invalidateCallback =
     &RenderingWidget::invalidateClbck; rRequest.opaque = this;
     rRequest.windowHandle = NULL;
-    adl_render_sink(&RenderingWidget::renderStarted,_platformHandle,this,
+    adl_render_sink(&RenderingWidget::renderStarted, _platformHandle, this,
                     &rRequest);
     setUpdatesEnabled(true);
 }
@@ -42,6 +51,7 @@ void RenderingWidget::stopRender()
 {
     if (_started)
     {
+        qDebug() << "Stopping renderer";
         adl_stop_render(&RenderingWidget::renderStopped, _platformHandle, this,
                         _rendererId);
     }
@@ -79,10 +89,7 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
         HDC hdc = painter.paintEngine()->getDC();
         req.windowHandle = hdc;
 #elif defined(Q_WS_X11)
-        QPaintDevice *device = painter.device();
-
-        Qt::HANDLE h = x11PictureHandle();
-        assert(h);
+        // TODO: implement renderer for OSX and Linux
 #endif
 
         adl_draw(_platformHandle, &req);
@@ -90,9 +97,8 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
     else
     {
         QPainter painter(this);
-        painter.setBackground(
-                    QBrush(QColor::fromRgb(120,120,120)));
-        painter.drawText(QRectF(),QString("Waiting for frame.,."));
+        painter.setBackground(QBrush(QColor::fromRgb(120,120,120)));
+        painter.drawText(QRectF(0, 0, 200, 20), QString("Waiting for a frame..."));
     }
 }
 
@@ -106,18 +112,32 @@ void RenderingWidget::renderStarted(void* o, const ADLError*,
                                     int rendererId)
 {
     RenderingWidget* _this = (RenderingWidget*) o;
-    _this->_rendererId = rendererId;
-    _this->_started = true;
+    // emitting signal to be dispatched in GUI thread
+    _this->renderStartedSignal(rendererId);
 }
 
 void RenderingWidget::renderStopped(void* o , const ADLError*)
 {
     RenderingWidget* _this = (RenderingWidget*) o;
-    _this->sinkId = "";
-    _this->_started = false;
-    if(_this->_sinkIdToBeRendered.length() > 0)
+    // emitting signal to be dispatched in GUI thread
+    _this->renderStoppedSignal();
+}
+
+void RenderingWidget::renderStartedSlot(int rendererId)
+{
+    qDebug() << "Rendering started on renderer with id " << rendererId;
+    _rendererId = rendererId;
+    _started = true;
+}
+
+void RenderingWidget::renderStoppedSlot()
+{
+    qDebug() << "Rendering stopped";
+    _started = false;
+    if (!_deferredSinkId.empty())
     {
-        _this->startRender(_this->_sinkIdToBeRendered);
+        startRender(_deferredSinkId);
+        _deferredSinkId = "";
     }
 }
 

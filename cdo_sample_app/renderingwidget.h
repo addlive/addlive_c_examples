@@ -11,7 +11,7 @@ class RenderingWidget : public QWidget
 public:
     explicit RenderingWidget(QWidget *parent = 0);
     
-    void startRender(std::string sinkId);
+    void startRender(const std::string& sinkId);
 
     void stopRender();
 
@@ -19,24 +19,29 @@ public:
 
     static void invalidateClbck(void*);
 
-    static void renderStarted(void*, const ADLError*, int);
-    static void renderStopped(void*, const ADLError*);
-
 protected:
     void paintEvent(QPaintEvent *e);
 
 
 signals:
-    
+
+    void renderStartedSignal(int rendererId);
+    void renderStoppedSignal();
+
 public slots:
     
+    void renderStartedSlot(int);
+    void renderStoppedSlot();
+
 private:
+
+    static void renderStarted(void*, const ADLError*, int);
+    static void renderStopped(void*, const ADLError*);
 
     void invalidateClbckImpl();
 
     ADLH _platformHandle;
-    std::string sinkId;
-    std::string _sinkIdToBeRendered;
+    std::string _deferredSinkId;
     int _rendererId;
     bool _started;
 };

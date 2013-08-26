@@ -74,13 +74,12 @@ void CdoSampleAppWindow::onADLPlatformReady(void* pH, QString v)
 void CdoSampleAppWindow::onLocalPreviewSinkChanged(QString sinkId)
 {
     qDebug() << "Rendering local sink with id: " << sinkId;
-    ui->localRenderer->stopRender();
     ui->localRenderer->startRender(sinkId.toStdString());
 }
+
 void CdoSampleAppWindow::onRemotePreviewSinkChanged(QString sinkId)
 {
     qDebug() << "Rendering remote sink with id: " << sinkId;
-    ui->remoteRenderer->stopRender();
     if (!sinkId.isEmpty())
     {
         ui->remoteRenderer->startRender(sinkId.toStdString());
@@ -123,7 +122,7 @@ void CdoSampleAppWindow::setupBindings()
                      this, SLOT(onSpeakerSelected(int)));
 
     QObject::connect(&_appController, SIGNAL(cdoReady(void*, QString)),
-                     this,SLOT(onADLPlatformReady(void*, QString)));
+                     this, SLOT(onADLPlatformReady(void*, QString)));
 
     QObject::connect(&_appController,
                      SIGNAL(mediaDevicesListChanged(int, QVariantMap)),

@@ -7,7 +7,8 @@
 #include <QVariant>
 #include <QString>
 #include <addlive_sdk.h>
-namespace Ui {
+namespace Ui
+{
 class CdoSampleAppWindow;
 }
 
