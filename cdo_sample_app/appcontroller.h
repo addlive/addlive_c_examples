@@ -25,6 +25,9 @@ public:
 
     void connect(QString scopeId, bool pAudio, bool pVideo);
 
+    void setVideoCaptureDevice(const std::string& deviceId, bool firstRun = false);
+    void setAudioCaptureDevice(const std::string& deviceId, bool firstRun = false);
+    void setAudioOutputDevice(const std::string& deviceId, bool firstRun = false);
 
 //  Callbacks
     void onCdoReady(ADLH, std::string v);

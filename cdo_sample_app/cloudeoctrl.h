@@ -59,9 +59,6 @@ private:
 
     static void nopRHandler(void*, const ADLError*){}
 
-    static const long long APP_ID = 1;
-    static const std::string APP_SECRET;
-
     ADLH _platformHandle;
     ADLReadyHandler _readyHandler;
 };

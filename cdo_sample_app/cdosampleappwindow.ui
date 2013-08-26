@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CdoSampleAppWindow</string>
+   <string>AddLive sample application</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QGroupBox" name="groupBox">
@@ -199,6 +199,9 @@
        <width>221</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="text">
+      <string>room1</string>
      </property>
     </widget>
     <widget class="QPushButton" name="connectBtn">

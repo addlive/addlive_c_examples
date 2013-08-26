@@ -1,5 +1,4 @@
-#include "renderingwidget.h"
-#include <string.h>
+#include <renderingwidget.h>
 #include <cdohelpers.h>
 #include <QPaintEvent>
 #include <QPaintEngine>
@@ -23,7 +22,7 @@ RenderingWidget::RenderingWidget(QWidget *parent) :
 
 void RenderingWidget::startRender(std::string sinkId)
 {
-    if(_started)
+    if (_started)
     {
         _sinkIdToBeRendered = sinkId;
         stopRender();
@@ -41,7 +40,7 @@ void RenderingWidget::startRender(std::string sinkId)
 
 void RenderingWidget::stopRender()
 {
-    if(_started)
+    if (_started)
     {
         adl_stop_render(&RenderingWidget::renderStopped, _platformHandle, this,
                         _rendererId);
@@ -56,7 +55,7 @@ void RenderingWidget::setPlatformHandle(ADLH handle)
 
 void RenderingWidget::paintEvent(QPaintEvent *e)
 {
-    if(_started)
+    if (_started)
     {
         ADLDrawRequest req;
 

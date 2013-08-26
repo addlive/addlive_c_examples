@@ -1,21 +1,19 @@
-#include "appcontroller.h"
+#include <appcontroller.h>
+#include <addlivesdkparams.h>
+#include <cdohelpers.h>
 
-#include <boost/bind.hpp>
 #include <QDebug>
 #include <QTime>
-#include <cdohelpers.h>
-#include <time.h>
 
+#include <boost/bind.hpp>
+#include <time.h>
 #include <sstream>
+
 
 namespace
 {
 QVariantMap devsMap2QVariantMap(const std::map<std::string,std::string> in);
 void nop(){}
-
-// Dev layer streamer
-const std::string gStreamerBase = "174.127.76.179:443/";
-//const std::string gStreamerBase = "192.168.1.33:7000/";
 }
 
 AppController::AppController(QObject *parent) :
@@ -42,30 +40,41 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     int uId = qrand() % 1000;
 
     descr.authDetails.userId = uId;
-    descr.authDetails.salt = ADLHelpers::stdString2ADLString(
-                "Some Salt");
+    descr.authDetails.salt = ADLHelpers::stdString2ADLString("Some Salt");
     descr.authDetails.expires = time(NULL) + 300000;
     descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
 
     descr.url = ADLHelpers::stdString2ADLString(
-                gStreamerBase + scopeId.toStdString());
+                addlive::gStreamerAddress + "/" + scopeId.toStdString());
 
-    descr.lowVideoStream.maxBitRate = 64;
-    descr.lowVideoStream.maxFps = 5;
-    descr.lowVideoStream.maxHeight = 240;
-    descr.lowVideoStream.maxWidth = 320;
-    descr.lowVideoStream.publish = true;
-    descr.lowVideoStream.receive = true;
+    descr.videoStream.maxWidth = 1280;
+    descr.videoStream.maxHeight = 720;
+    descr.videoStream.maxFps = 30;
+    descr.videoStream.useAdaptation = true;
 
-    descr.highVideoStream.maxBitRate = 512;
-    descr.highVideoStream.maxWidth = 640;
-    descr.highVideoStream.maxHeight = 480;
-    descr.highVideoStream.maxFps = 24;
-    descr.highVideoStream.publish = true;
-    descr.highVideoStream.receive = true;
     _scopeId = scopeId.toStdString();
     ADLConnectedHandler rh = boost::bind(&AppController::onConnected, this, _1);
     _cdoCtrl.connect(rh, &descr, scopeId.toStdString());
+}
+
+void AppController::setVideoCaptureDevice(const std::string& deviceId, bool firstRun/* = false*/)
+{
+    qDebug() << "Setting video capture device with ID " << deviceId.c_str();
+    ADLSetDevHandler rh =
+            boost::bind(&AppController::onVideoDeviceSet, this, firstRun);
+    _cdoCtrl.setVideoCaptureDevice(rh, deviceId);
+}
+
+void AppController::setAudioCaptureDevice(const std::string& deviceId, bool /* = false*/)
+{
+    qDebug() << "Setting audio capture device with ID " << deviceId.c_str();
+    _cdoCtrl.setAudioCaptureDevice(&nop, deviceId);
+}
+
+void AppController::setAudioOutputDevice(const std::string& deviceId, bool /* = false*/)
+{
+    qDebug() << "Setting audio output device with ID " << deviceId.c_str();
+    _cdoCtrl.setAudioOutputDevice(&nop, deviceId);
 }
 
 void AppController::onUserEvent(void* opaque, const ADLUserStateChangedEvent* e)
@@ -167,23 +176,19 @@ void AppController::onCdoReady(ADLH pH, std::string version)
     _cdoCtrl.getAudioOutputDeviceNames(rH);
 }
 
-void AppController::onVideoDevices(std::map<std::string,std::string> devs,
+void AppController::onVideoDevices(std::map<std::string, std::string> devs,
                                    bool firstRun)
 {
     qDebug() << "Got video devices list containing " << devs.size() << " items";
     emit mediaDevicesListChanged(VIDEO_IN, devsMap2QVariantMap(devs));
     if (firstRun && devs.size())
     {
-        qDebug() << "Setting video capture device " << devs.begin()->first.c_str()
-                 << ": " << devs.begin()->second.c_str();
-        ADLSetDevHandler rh =
-                boost::bind(&AppController::onVideoDeviceSet, this, firstRun);
-        _cdoCtrl.setVideoCaptureDevice(rh, devs.begin()->first);
+        setVideoCaptureDevice(devs.begin()->first, true);
     }
 }
 
 void AppController::onAudioCaptureDevices(
-        std::map<std::string,std::string> devs,bool firstRun)
+        std::map<std::string, std::string> devs, bool firstRun)
 {
     qDebug() << "Got audio capture devices list containing " << devs.size() << " items";
     emit mediaDevicesListChanged(AUDIO_IN, devsMap2QVariantMap(devs));
@@ -258,11 +263,11 @@ void AppController::onMediaEvent(const ADLUserStateChangedEvent* e)
 
 namespace
 {
-QVariantMap devsMap2QVariantMap(const std::map<std::string,std::string> devs)
+QVariantMap devsMap2QVariantMap(const std::map<std::string, std::string> devs)
 {
     QVariantMap qDevs;
     std::pair<std::string, std::string> itm;
-    foreach(itm, devs)
+    foreach (itm, devs)
     {
         qDevs[QString::fromUtf8(itm.first.c_str())] =
                 QString::fromUtf8(itm.second.c_str());

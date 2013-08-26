@@ -1,18 +1,16 @@
 #include <cloudeoctrl.h>
-
 #include <cdohelpers.h>
-
-#include <string>
-#include <QDebug>
-#include <QCoreApplication>
+#include <addlivesdkparams.h>
 
 #include <cryptlite/sha256.h>
 #include <cryptlite/hmac.h>
 
-#include <sstream>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QDir>
 
-const char* gLibsPath = "/AddLive_sdk-win";
-const std::string CloudeoCtrl::APP_SECRET = "AddLiveAPIKey_Be3eyOHLkHJGlw37w71XNPVvIk6zHP3giRqX2hVrqXjuOgNJQVLNyyDVqJTMV6wjYQnrnTVcLx9MTJilmGKvLgF2hw1SbtoWBSza";
+#include <string>
+#include <sstream>
 
 
 CloudeoCtrl::CloudeoCtrl()
@@ -21,8 +19,8 @@ CloudeoCtrl::CloudeoCtrl()
 
 void CloudeoCtrl::initPlatform(ADLReadyHandler readyHandler)
 {
-    QString appDir = QCoreApplication::applicationDirPath();
-    appDir.append(QString(gLibsPath));
+    QString appDir = QDir::cleanPath(QCoreApplication::applicationDirPath()
+        + QDir::separator() + QString(addlive::gAddLiveSdkDirectoryName));
 
     ADLInitOptions options = {{0},{0}};
     ADLHelpers::stdString2ADLString(&options.logicLibPath, appDir.toUtf8().data());
@@ -113,10 +111,10 @@ void CloudeoCtrl::connect(ADLConnectedHandler rH,
     *copy = rH;
 
     std::stringstream signatureRawBuilder;
-    signatureRawBuilder << APP_ID << scopeId <<
+    signatureRawBuilder << addlive::gAppId << scopeId <<
         descr->authDetails.userId <<
         ADLHelpers::ADLString2Std(&(descr->authDetails.salt)) <<
-        descr->authDetails.expires << APP_SECRET;
+        descr->authDetails.expires << addlive::gAddLiveKey;
 
     using namespace cryptlite;
     std::string signature = sha256::hash_hex(signatureRawBuilder.str());
@@ -155,7 +153,7 @@ void CloudeoCtrl::onPlatformReady(void* o, const ADLError* err, ADLH h)
     if(adl_no_error(err))
     {
         ctrl->_platformHandle = h;
-        adl_set_application_id(&CloudeoCtrl::onAppIdSet, h, ctrl, APP_ID);
+        adl_set_application_id(&CloudeoCtrl::onAppIdSet, h, ctrl, addlive::gAppId);
         adl_get_version(&CloudeoCtrl::onVersion,h, ctrl);
     }
     else

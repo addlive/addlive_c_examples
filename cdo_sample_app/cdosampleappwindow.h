@@ -21,6 +21,9 @@ public:
 
 public slots:
 
+    void onVideoDeviceSelected(int);
+    void onMicSelected(int);
+    void onSpeakerSelected(int);
     void onMediaDevicesListChanged(int, QVariantMap);
     void onLocalPreviewSinkChanged(QString);
     void onRemotePreviewSinkChanged(QString);

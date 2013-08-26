@@ -25,15 +25,19 @@ HEADERS  += cdosampleappwindow.h \
     cryptlite/sha256.h \
     cryptlite/sha1.h \
     cryptlite/hmac.h \
-    cryptlite/base64.h
+    cryptlite/base64.h \
+    addlivesdkparams.h
 
 FORMS    += cdosampleappwindow.ui
 
-BOOST_HOME = $$PWD/../../../adl_libs/include/boost-1_49
+
+BOOST_HOME = c:/work/boost/include/boost-1_54
+
 win32: ADL_HOME = $$PWD/../AddLive_sdk-win
 unix:!macx {
     ADL_HOME = $$PWD/../AddLive_sdk-linux
 }
+
 
 LIBS += -L$$ADL_HOME -ladl_sdk
 unix:!macx {
@@ -48,4 +52,5 @@ INCLUDEPATH += $$BOOST_HOME
 
 #QMAKE_CXXFLAGS += -fsanitize=thread -fPIE
 #QMAKE_LFLAGS += -pie -fsanitize=thread
+
 
