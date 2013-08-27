@@ -17,16 +17,15 @@ public:
 
     void setPlatformHandle(ADLH handle);
 
-    static void invalidateClbck(void*);
-
 protected:
-    void paintEvent(QPaintEvent *e);
 
+    void paintEvent(QPaintEvent *e);
 
 signals:
 
     void renderStartedSignal(int rendererId);
     void renderStoppedSignal();
+    void updateSignal();
 
 public slots:
     
@@ -37,8 +36,7 @@ private:
 
     static void renderStarted(void*, const ADLError*, int);
     static void renderStopped(void*, const ADLError*);
-
-    void invalidateClbckImpl();
+    static void invalidateClbck(void*);
 
     ADLH _platformHandle;
     std::string _deferredSinkId;

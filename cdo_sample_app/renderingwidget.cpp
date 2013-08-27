@@ -21,8 +21,9 @@ RenderingWidget::RenderingWidget(QWidget *parent) :
                      this,  SLOT(renderStartedSlot(int)));
     QObject::connect(this, SIGNAL(renderStoppedSignal()),
                      this,  SLOT(renderStoppedSlot()));
+    QObject::connect(this, SIGNAL(updateSignal()),
+                     this,  SLOT(update()));
 }
-
 
 void RenderingWidget::startRender(const std::string& sinkId)
 {
@@ -106,22 +107,20 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
 
 void RenderingWidget::invalidateClbck(void* o)
 {
-    ((RenderingWidget*)o)->invalidateClbckImpl();
+    ((RenderingWidget*)o)->updateSignal();
 }
 
 void RenderingWidget::renderStarted(void* o, const ADLError*,
                                     int rendererId)
 {
-    RenderingWidget* _this = (RenderingWidget*) o;
     // emitting signal to be dispatched in GUI thread
-    _this->renderStartedSignal(rendererId);
+    ((RenderingWidget*)o)->renderStartedSignal(rendererId);
 }
 
 void RenderingWidget::renderStopped(void* o , const ADLError*)
 {
-    RenderingWidget* _this = (RenderingWidget*) o;
     // emitting signal to be dispatched in GUI thread
-    _this->renderStoppedSignal();
+    ((RenderingWidget*)o)->renderStoppedSignal();
 }
 
 void RenderingWidget::renderStartedSlot(int rendererId)
@@ -142,7 +141,3 @@ void RenderingWidget::renderStoppedSlot()
     }
 }
 
-void RenderingWidget::invalidateClbckImpl()
-{
-    this->update();
-}
