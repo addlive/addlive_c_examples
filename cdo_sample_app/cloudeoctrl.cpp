@@ -276,7 +276,7 @@ void CloudeoCtrl::onConnected(void* o, const ADLError* e)
     self->connected(adl_no_error(e));
 }
 
-void CloudeoCtrl::onDisconnected(void* o, const ADLError* e)
+void CloudeoCtrl::onDisconnected(void* o, const ADLError*)
 {
     CloudeoCtrl* self = (CloudeoCtrl*)o;
     // emit signal
