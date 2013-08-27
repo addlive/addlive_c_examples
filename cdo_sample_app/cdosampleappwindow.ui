@@ -248,6 +248,9 @@
      <property name="text">
       <string>Publish audio</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QCheckBox" name="publishVideoChck">
      <property name="geometry">
@@ -261,6 +264,9 @@
      <property name="text">
       <string>Publish video</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLabel" name="label_5">
      <property name="geometry">
@@ -272,7 +278,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Cloudeo SDK version:</string>
+      <string>AddLive SDK version:</string>
      </property>
     </widget>
     <widget class="QLabel" name="versionLbl">

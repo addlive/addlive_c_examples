@@ -18,11 +18,11 @@ RenderingWidget::RenderingWidget(QWidget *parent) :
     setAttribute(Qt::WA_PaintOnScreen, true);
 
     QObject::connect(this, SIGNAL(renderStartedSignal(int)),
-                     this,  SLOT(renderStartedSlot(int)));
+                     this, SLOT(renderStartedSlot(int)));
     QObject::connect(this, SIGNAL(renderStoppedSignal()),
-                     this,  SLOT(renderStoppedSlot()));
+                     this, SLOT(renderStoppedSlot()));
     QObject::connect(this, SIGNAL(updateSignal()),
-                     this,  SLOT(update()));
+                     this, SLOT(update()));
 }
 
 void RenderingWidget::startRender(const std::string& sinkId)

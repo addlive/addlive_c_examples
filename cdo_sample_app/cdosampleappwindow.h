@@ -31,6 +31,7 @@ public slots:
     void onADLPlatformReady(void*, QString);
     void onConnectClicked();
     void onConnected();
+    void onDisconnected();
 signals:
 
 private:

@@ -86,7 +86,6 @@ void CdoSampleAppWindow::onRemotePreviewSinkChanged(QString sinkId)
     }
 }
 
-
 void CdoSampleAppWindow::onConnectClicked()
 {
     qDebug() << "Establishing a connection";
@@ -101,10 +100,12 @@ void CdoSampleAppWindow::onConnected()
     qDebug() << "Connection established";
     ui->connectBtn->setEnabled(false);
     ui->disconnectBtn->setEnabled(true);
-    QString scopeId = ui->scopeIdTxt->text();
-    bool publishAudio = ui->publishAudioChck->checkState() == Qt::Checked;
-    bool publishVideo = ui->publishVideoChck->checkState() == Qt::Checked;
-    _appController.connect(scopeId, publishAudio, publishVideo);
+}
+
+void CdoSampleAppWindow::onDisconnected()
+{
+    ui->connectBtn->setEnabled(true);
+    ui->disconnectBtn->setEnabled(false);
 }
 
 void CdoSampleAppWindow::setupBindings()
@@ -127,12 +128,13 @@ void CdoSampleAppWindow::setupBindings()
     QObject::connect(&_appController,
                      SIGNAL(mediaDevicesListChanged(int, QVariantMap)),
                      this, SLOT(onMediaDevicesListChanged(int, QVariantMap)));
-    QObject::connect(&_appController,
-                     SIGNAL(connected()),
-                     this, SLOT(onConnected()));
 
-    QObject::connect(&_appController,
-                     SIGNAL(localVideoSinkChanged(QString)),
+    QObject::connect(&_appController, SIGNAL(connected()),
+                     this, SLOT(onConnected()));
+    QObject::connect(&_appController, SIGNAL(disconnected()),
+                     this, SLOT(onDisconnected()));
+
+    QObject::connect(&_appController, SIGNAL(localVideoSinkChanged(QString)),
                      this, SLOT(onLocalPreviewSinkChanged(QString)));
     QObject::connect(&_appController, SIGNAL(remoteVideoSinkChanged(QString)),
                      this, SLOT(onRemotePreviewSinkChanged(QString)));

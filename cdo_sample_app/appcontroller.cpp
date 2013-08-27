@@ -5,27 +5,42 @@
 #include <QDebug>
 #include <QTime>
 
-#include <boost/bind.hpp>
-#include <time.h>
 #include <sstream>
+#include <time.h>
 
-
-namespace
-{
-QVariantMap devsMap2QVariantMap(const std::map<std::string,std::string> in);
-void nop(){}
-}
 
 AppController::AppController(QObject *parent) :
     QObject(parent), _connected(false)
 {
+    QObject::connect(&_cdoCtrl,
+                     SIGNAL(audioCaptureDeviceListChanged(QVariantMap)),
+                     this, SLOT(onAudioCaptureDevices(QVariantMap)));
+    QObject::connect(&_cdoCtrl,
+                     SIGNAL(audioOutputDeviceListChanged(QVariantMap)),
+                     this, SLOT(onAudioOutputDevices(QVariantMap)));
+    QObject::connect(&_cdoCtrl,
+                     SIGNAL(videoCaptureDeviceListChanged(QVariantMap)),
+                     this,  SLOT(onVideoDevices(QVariantMap)));
+
+    // always call startLocalVideo() when video device changed for simplicity
+    QObject::connect(&_cdoCtrl, SIGNAL(videoCaptureDeviceSet()),
+                     &_cdoCtrl,  SLOT(startLocalVideo()));
+
+    QObject::connect(&_cdoCtrl, SIGNAL(localPreviewStarted(QString)),
+                     this,  SLOT(onLocalVideoStarted(QString)));
+
+    QObject::connect(&_cdoCtrl, SIGNAL(platformReady(QString)),
+                     this,  SLOT(onPlatformReady(QString)));
+    QObject::connect(&_cdoCtrl, SIGNAL(connected(bool)),
+                     this,  SLOT(onConnected(bool)));
+    QObject::connect(&_cdoCtrl, SIGNAL(disconnected()),
+                     this,  SLOT(onDisconnected()));
 }
 
 void AppController::initADL()
 {
     qDebug() << "Initializing ADL";
-    ADLReadyHandler rH = boost::bind(&AppController::onCdoReady, this, _1, _2);
-    _cdoCtrl.initPlatform(rH);
+    _cdoCtrl.initPlatform();
 }
 
 void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
@@ -53,28 +68,25 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.videoStream.useAdaptation = addlive::gUseAdaptation;
 
     _scopeId = scopeId.toStdString();
-    ADLConnectedHandler rh = boost::bind(&AppController::onConnected, this, _1);
-    _cdoCtrl.connect(rh, &descr, scopeId.toStdString());
+    _cdoCtrl.connect(&descr, scopeId.toStdString());
 }
 
-void AppController::setVideoCaptureDevice(const std::string& deviceId, bool firstRun/* = false*/)
+void AppController::setVideoCaptureDevice(const std::string& deviceId)
 {
     qDebug() << "Setting video capture device with ID " << deviceId.c_str();
-    ADLSetDevHandler rh =
-            boost::bind(&AppController::onVideoDeviceSet, this, firstRun);
-    _cdoCtrl.setVideoCaptureDevice(rh, deviceId);
+    _cdoCtrl.setVideoCaptureDevice(deviceId);
 }
 
-void AppController::setAudioCaptureDevice(const std::string& deviceId, bool /* = false*/)
+void AppController::setAudioCaptureDevice(const std::string& deviceId)
 {
     qDebug() << "Setting audio capture device with ID " << deviceId.c_str();
-    _cdoCtrl.setAudioCaptureDevice(&nop, deviceId);
+    _cdoCtrl.setAudioCaptureDevice(deviceId);
 }
 
-void AppController::setAudioOutputDevice(const std::string& deviceId, bool /* = false*/)
+void AppController::setAudioOutputDevice(const std::string& deviceId)
 {
     qDebug() << "Setting audio output device with ID " << deviceId.c_str();
-    _cdoCtrl.setAudioOutputDevice(&nop, deviceId);
+    _cdoCtrl.setAudioOutputDevice(deviceId);
 }
 
 void AppController::onUserEvent(void* opaque, const ADLUserStateChangedEvent* e)
@@ -104,17 +116,16 @@ void AppController::playTestSndClicked()
 
 void AppController::disconnectBtnClicked()
 {
-    qDebug() << "Terminating connection";
+    qDebug() << "Stopping connection";
     _cdoCtrl.disconnect(_scopeId);
-    _connected = false;
 }
 
 
 void AppController::videoPublishStateChanged(bool state)
 {
-    if(_connected)
+    if (_connected)
     {
-        if(state)
+        if (state)
         {
             qDebug() << "Publishing video";
             _cdoCtrl.publish(_scopeId, ADL_MEDIA_TYPE_VIDEO);
@@ -129,9 +140,9 @@ void AppController::videoPublishStateChanged(bool state)
 
 void AppController::audioPublishStateChanged(bool state)
 {
-    if(_connected)
+    if (_connected)
     {
-        if(state)
+        if (state)
         {
             qDebug() << "Publishing audio";
             _cdoCtrl.publish(_scopeId, ADL_MEDIA_TYPE_AUDIO);
@@ -151,97 +162,69 @@ void AppController::audioPublishStateChanged(bool state)
   ******************************************************************************
   */
 
-void AppController::onCdoReady(ADLH pH, std::string version)
+void AppController::onPlatformReady(QString version)
 {
-    QString qVersion = QString::fromStdString(version);
-    qDebug() << "ADL Initialized, version: " << qVersion <<
+    qDebug() << "ADL Initialized, version: " << version <<
                 ". Continuing with initialization";
-    emit cdoReady(pH, qVersion);
+    emit cdoReady(_cdoCtrl.getPlatformHandler(), version);
 
     ADLServiceListener listener;
-    memset(&listener,0,sizeof(listener));
+    memset(&listener, 0, sizeof(listener));
     listener.onUserEvent = &AppController::onUserEvent;
     listener.onMediaStreamEvent = &AppController::onMediaEvent;
     listener.opaque = this;
     _cdoCtrl.addPlatformListener(&listener);
-
-    ADLDevsHandler rH = boost::bind(&AppController::onVideoDevices, this, _1,
-                                    true);
-    _cdoCtrl.getVideoCaptureDeviceNames(rH);
-
-    rH = boost::bind(&AppController::onAudioCaptureDevices, this, _1, true);
-    _cdoCtrl.getAudioCaptureDeviceNames(rH);
-
-    rH = boost::bind(&AppController::onAudioOutputDevices, this, _1, true);
-    _cdoCtrl.getAudioOutputDeviceNames(rH);
+    _cdoCtrl.getVideoCaptureDeviceNames();
+    _cdoCtrl.getAudioCaptureDeviceNames();
+    _cdoCtrl.getAudioOutputDeviceNames();
 }
 
-void AppController::onVideoDevices(std::map<std::string, std::string> devs,
-                                   bool firstRun)
+void AppController::onVideoDevices(QVariantMap devs)
 {
     qDebug() << "Got video devices list containing " << devs.size() << " items";
-    emit mediaDevicesListChanged(VIDEO_IN, devsMap2QVariantMap(devs));
-    if (firstRun && devs.size())
-    {
-        setVideoCaptureDevice(devs.begin()->first, true);
-    }
+    emit mediaDevicesListChanged(VIDEO_IN, devs);
 }
 
-void AppController::onAudioCaptureDevices(
-        std::map<std::string, std::string> devs, bool firstRun)
+void AppController::onAudioCaptureDevices(QVariantMap devs)
 {
     qDebug() << "Got audio capture devices list containing " << devs.size() << " items";
-    emit mediaDevicesListChanged(AUDIO_IN, devsMap2QVariantMap(devs));
-    if (firstRun && devs.size())
-    {
-        qDebug() << "Setting audio capture device";
-        _cdoCtrl.setAudioCaptureDevice(&nop, devs.begin()->first);
-    }
+    emit mediaDevicesListChanged(AUDIO_IN, devs);
 }
 
-void AppController::onAudioOutputDevices(
-        std::map<std::string,std::string> devs, bool firstRun)
+void AppController::onAudioOutputDevices(QVariantMap devs)
 {
     qDebug() << "Got audio output devices list containing " << devs.size() << " items";
-    emit mediaDevicesListChanged(AUDIO_OUT, devsMap2QVariantMap(devs));
-    if(firstRun)
-    {
-        qDebug() << "Setting audio output device";
-        _cdoCtrl.setAudioOutputDevice(&nop, devs.begin()->first);
-    }
+    emit mediaDevicesListChanged(AUDIO_OUT, devs);
 }
 
-void AppController::onVideoDeviceSet(bool startLocalVideo)
+void AppController::onLocalVideoStarted(QString sinkId)
 {
-    if(!startLocalVideo)
-        return;
-    qDebug() << "Video device configured; Starting local preview";
-    ADLLocalVideoStartedHandler rH =
-            boost::bind(&AppController::onLocalVideoStarted, this, _1);
-    _cdoCtrl.startLocalVideo(rH);
-}
-
-void AppController::onLocalVideoStarted(std::string sinkId)
-{
-    QString qSinkId = QString::fromStdString(sinkId);
-    qDebug() << "Local preview started; Sink id: " << qSinkId;
-    emit localVideoSinkChanged(qSinkId);
+    qDebug() << "Local preview started; Sink id: " << sinkId;
+    emit localVideoSinkChanged(sinkId);
 }
 
 void AppController::onConnected(bool succ)
 {
     qDebug() << "Got connected result: " << succ;
     _connected = true;
-    //emit connected();
+    if (succ)
+    {
+        emit connected();
+    }
 }
 
+void AppController::onDisconnected()
+{
+    qDebug() << "Disconnected";
+    _connected = false;
+    emit disconnected();
+}
 
 void AppController::onUserEvent(const ADLUserStateChangedEvent* e)
 {
     qDebug() << "Got new user event";
     if(e->isConnected && e->videoPublished)
-        emit remoteVideoSinkChanged(
-                    ADLHelpers::ADLString2QString(&(e->videoSinkId)));
+        emit remoteVideoSinkChanged(ADLHelpers::ADLString2QString(&e->videoSinkId));
     else
         emit remoteVideoSinkChanged(QString());
 
@@ -260,19 +243,3 @@ void AppController::onMediaEvent(const ADLUserStateChangedEvent* e)
     }
 }
 
-
-namespace
-{
-QVariantMap devsMap2QVariantMap(const std::map<std::string, std::string> devs)
-{
-    QVariantMap qDevs;
-    std::pair<std::string, std::string> itm;
-    foreach (itm, devs)
-    {
-        qDevs[QString::fromUtf8(itm.first.c_str())] =
-                QString::fromUtf8(itm.second.c_str());
-    }
-    return qDevs;
-
-}
-}

@@ -3,64 +3,85 @@
 
 #include <addlive_sdk.h>
 
-#include <boost/function.hpp>
+#include <QObject>
+#include <QVariant>
 
 #include <map>
 #include <string>
 
-typedef boost::function<void(ADLH,std::string)> ADLReadyHandler;
-typedef boost::function<void(std::map<std::string,std::string>)> ADLDevsHandler;
-typedef boost::function<void()> ADLSetDevHandler;
-typedef boost::function<void(std::string)> ADLLocalVideoStartedHandler;
-typedef boost::function<void(bool)> ADLConnectedHandler;
 
-class CloudeoCtrl
+class CloudeoCtrl: public QObject
 {
+    Q_OBJECT
 public:
+
     CloudeoCtrl();
 
-    void initPlatform(ADLReadyHandler readyHandler);
+    void initPlatform();
 
     void addPlatformListener(ADLServiceListener* listener);
 
-    void getVideoCaptureDeviceNames(ADLDevsHandler);
-    void getAudioCaptureDeviceNames(ADLDevsHandler);
-    void getAudioOutputDeviceNames(ADLDevsHandler);
+    ADLH getPlatformHandler() const;
 
-    void setVideoCaptureDevice(ADLSetDevHandler rH, std::string);
-    void setAudioCaptureDevice(ADLSetDevHandler rH, std::string);
-    void setAudioOutputDevice(ADLSetDevHandler rH, std::string);
+    void getVideoCaptureDeviceNames();
+    void getAudioCaptureDeviceNames();
+    void getAudioOutputDeviceNames();
+
+    void setVideoCaptureDevice(const std::string& devId);
+    void setAudioCaptureDevice(const std::string& devId);
+    void setAudioOutputDevice(const std::string& devId);
     void playTestSound();
 
-    void startLocalVideo(ADLLocalVideoStartedHandler rH);
+    void connect(ADLConnectionDescriptor* descr, const std::string& scopeId);
+    void disconnect(const std::string& scopeId);
 
-    void connect(ADLConnectedHandler rh, ADLConnectionDescriptor* descr, std::string scopeId);
-    void disconnect(std::string scopeId);
+    void publish(const std::string& scopeId, const std::string& what);
+    void unpublish(const std::string& scopeId, const std::string& what);
 
-    void publish(std::string scopeId, std::string what);
-    void unpublish(std::string scopeId, std::string what);
+signals:
+    void platformReady(QString);
+
+    void audioCaptureDeviceListChanged(QVariantMap);
+    void audioOutputDeviceListChanged(QVariantMap);
+    void videoCaptureDeviceListChanged(QVariantMap);
+
+    void videoCaptureDeviceSet();
+    void audioCaptureDeviceSet();
+    void audioOutputDeviceSet();
+
+    void localPreviewStarted(QString);
+
+    void connected(bool);
+    void disconnected();
+
+public slots:
+
+    void startLocalVideo();
+
+private:
+
+    static void onVideoCaptureDeviceSet(void* o, const ADLError* err);
+    static void onAudioCaptureDeviceSet(void* o, const ADLError* err);
+    static void onAudioOutputDeviceSet(void* o, const ADLError* err);
 
     static void onPlatformReady(void* o, const ADLError* err, ADLH h);
 
     static void onVersion(void* o, const ADLError* e, const ADLString* v);
     static void onAppIdSet(void* o, const ADLError* e);
 
-    static void onDevices(void* o, const ADLError* e, ADLDevice* devs,
+    static void onAudioCaptureDevices(void* o, const ADLError* e, ADLDevice* devs,
                           size_t len);
-
-    static void onSetDevice(void* o, const ADLError* e);
+    static void onAudioOutputDevices(void* o, const ADLError* e, ADLDevice* devs,
+                          size_t len);
+    static void onVideoCaptureDevices(void* o, const ADLError* e, ADLDevice* devs,
+                          size_t len);
 
     static void onLocalPreviewStarted(void* o, const ADLError* e,
                                       const ADLString* v);
     static void onConnected(void* o, const ADLError* e);
-
-private:
-
-
-    static void nopRHandler(void*, const ADLError*){}
+    static void onDisconnected(void* o, const ADLError* e);
 
     ADLH _platformHandle;
-    ADLReadyHandler _readyHandler;
 };
 
 #endif // CLOUDEOCTRL_H

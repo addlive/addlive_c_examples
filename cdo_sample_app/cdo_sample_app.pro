@@ -15,23 +15,19 @@ SOURCES += main.cpp\
     renderingwidget.cpp \
     cloudeoctrl.cpp \
     cdohelpers.cpp \
-    appcontroller.cpp
+    appcontroller.cpp \
+    sha256.c
 
 HEADERS  += cdosampleappwindow.h \
     renderingwidget.h \
     cloudeoctrl.h \
     cdohelpers.h \
     appcontroller.h \
-    cryptlite/sha256.h \
-    cryptlite/sha1.h \
-    cryptlite/hmac.h \
-    cryptlite/base64.h \
-    addlivesdkparams.h
+    addlivesdkparams.h \
+    sha256.h
 
 FORMS    += cdosampleappwindow.ui
 
-
-BOOST_HOME = c:/work/boost/include/boost-1_54
 
 win32: ADL_HOME = $$PWD/../AddLive_sdk-win
 unix:!macx {
@@ -48,7 +44,6 @@ unix:!macx {
 }
 
 INCLUDEPATH += $$ADL_HOME
-INCLUDEPATH += $$BOOST_HOME
 
 #QMAKE_CXXFLAGS += -fsanitize=thread -fPIE
 #QMAKE_LFLAGS += -pie -fsanitize=thread
