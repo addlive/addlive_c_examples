@@ -59,9 +59,6 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.authDetails.expires = time(NULL) + 300000;
     descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
 
-    descr.url = ADLHelpers::stdString2ADLString(
-                addlive::gStreamerAddress + "/" + scopeId.toStdString());
-
     descr.videoStream.maxWidth = addlive::gMaxVideoWidth;
     descr.videoStream.maxHeight = addlive::gMaxVideoHeight;
     descr.videoStream.maxFps = addlive::gMaxFps;
