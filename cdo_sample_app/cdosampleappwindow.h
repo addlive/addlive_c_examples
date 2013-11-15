@@ -28,11 +28,16 @@ public slots:
     void onMediaDevicesListChanged(int, QVariantMap);
     void onLocalPreviewSinkChanged(QString);
     void onRemotePreviewSinkChanged(QString);
+    void onRemoteScreenSinkChanged(QString);
     void onADLPlatformReady(void*, QString);
+    void onScreenPublishStateChanged(bool state);
     void onConnectClicked();
     void onConnected();
     void onDisconnected();
+    void onMessageReceived(QString msg);
 signals:
+
+private slots:
 
 private:
 

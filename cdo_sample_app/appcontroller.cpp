@@ -21,6 +21,9 @@ AppController::AppController(QObject *parent) :
     QObject::connect(&_cdoCtrl,
                      SIGNAL(videoCaptureDeviceListChanged(QVariantMap)),
                      this,  SLOT(onVideoDevices(QVariantMap)));
+    QObject::connect(&_cdoCtrl,
+                     SIGNAL(screenCaptureSourceListChanged(QVariantMap)),
+                     this,  SLOT(onScreenCaptureSources(QVariantMap)));
 
     // always call startLocalVideo() when video device changed for simplicity
     QObject::connect(&_cdoCtrl, SIGNAL(videoCaptureDeviceSet()),
@@ -57,7 +60,9 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.authDetails.userId = uId;
     descr.authDetails.salt = ADLHelpers::stdString2ADLString("Some Salt 323234#@");
     descr.authDetails.expires = time(NULL) + 300000;
-    descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
+//    descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
+    std::string scopeURL = addlive::gStreamerAddress + "/" + scopeId.toStdString();
+    ADLHelpers::stdString2ADLString(&descr.url, scopeURL);
 
     descr.videoStream.maxWidth = addlive::gMaxVideoWidth;
     descr.videoStream.maxHeight = addlive::gMaxVideoHeight;
@@ -98,6 +103,12 @@ void AppController::onMediaEvent(void* opaque,
     ((AppController*) opaque)->onMediaEvent(e);
 }
 
+void AppController::onMessageEvent(void* opaque,
+                                   const ADLMessageEvent* e)
+{
+    ((AppController*) opaque)->onMessageEvent(e);
+}
+
 
 /**
   * Slots
@@ -131,6 +142,27 @@ void AppController::videoPublishStateChanged(bool state)
         {
             qDebug() << "Unpublishing video";
             _cdoCtrl.unpublish(_scopeId, ADL_MEDIA_TYPE_VIDEO);
+        }
+    }
+}
+
+void AppController::screenPublishStateChanged(bool state, QString sourceId)
+{
+    if (_connected)
+    {
+        if (state)
+        {
+            qDebug() << "Publishing screen";
+            ADLMediaPublishOptions opts;
+            memset(&opts, 0, sizeof(opts));
+            ADLHelpers::stdString2ADLString(&opts.windowId, sourceId.toStdString());
+            opts.nativeWidth = 1024;
+            _cdoCtrl.publish(_scopeId, ADL_MEDIA_TYPE_SCREEN, &opts);
+        }
+        else
+        {
+            qDebug() << "Unpublishing screen";
+            _cdoCtrl.unpublish(_scopeId, ADL_MEDIA_TYPE_SCREEN);
         }
     }
 }
@@ -169,9 +201,11 @@ void AppController::onPlatformReady(QString version)
     memset(&listener, 0, sizeof(listener));
     listener.onUserEvent = &AppController::onUserEvent;
     listener.onMediaStreamEvent = &AppController::onMediaEvent;
+    listener.onMessage = &AppController::onMessageEvent;
     listener.opaque = this;
     _cdoCtrl.addPlatformListener(&listener);
     _cdoCtrl.getVideoCaptureDeviceNames();
+    _cdoCtrl.getScreenCaptureSources();
     _cdoCtrl.getAudioCaptureDeviceNames();
     _cdoCtrl.getAudioOutputDeviceNames();
 }
@@ -180,6 +214,12 @@ void AppController::onVideoDevices(QVariantMap devs)
 {
     qDebug() << "Got video devices list containing " << devs.size() << " items";
     emit mediaDevicesListChanged(VIDEO_IN, devs);
+}
+
+void AppController::onScreenCaptureSources(QVariantMap srcs)
+{
+    qDebug() << "Got screen capture sources list containing " << srcs.size() << " items";
+    emit mediaDevicesListChanged(SCREEN, srcs);
 }
 
 void AppController::onAudioCaptureDevices(QVariantMap devs)
@@ -222,6 +262,8 @@ void AppController::onUserEvent(const ADLUserStateChangedEvent* e)
     qDebug() << "Got new user event";
     if(e->isConnected && e->videoPublished)
         emit remoteVideoSinkChanged(ADLHelpers::ADLString2QString(&e->videoSinkId));
+    if(e->isConnected && e->screenPublished)
+        emit remoteScreenSinkChanged(ADLHelpers::ADLString2QString(&e->screenSinkId));
     else
         emit remoteVideoSinkChanged(QString());
 
@@ -238,5 +280,25 @@ void AppController::onMediaEvent(const ADLUserStateChangedEvent* e)
                     QString();
         emit remoteVideoSinkChanged(sinkId);
     }
+    else if(ADLHelpers::stringEq(&(e->mediaType), ADL_MEDIA_TYPE_SCREEN))
+    {
+        QString sinkId = e->screenPublished ?
+                    ADLHelpers::ADLString2QString(&(e->screenSinkId)) :
+                    QString();
+        emit remoteScreenSinkChanged(sinkId);
+    }
+}
+
+void AppController::sendMessageClicked()
+{
+    qDebug() << "Sending message";
+    _cdoCtrl.sendMessage(_scopeId);
+}
+
+void AppController::onMessageEvent(const ADLMessageEvent* e)
+{
+    QString msg = ADLHelpers::ADLString2QString(&(e->data));
+    qDebug() << "Got new message event: " << msg;
+    this->messageReceived(msg);
 }
 

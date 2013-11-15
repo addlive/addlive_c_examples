@@ -1,6 +1,7 @@
 #include "cdosampleappwindow.h"
 #include "ui_cdosampleappwindow.h"
 #include <QDebug>
+#include <QMessageBox>
 
 
 CdoSampleAppWindow::CdoSampleAppWindow(QWidget *parent) :
@@ -51,6 +52,9 @@ void CdoSampleAppWindow::onMediaDevicesListChanged(int devType,
     case VIDEO_IN:
         targetCombo = ui->camCombo;
         break;
+    case SCREEN:
+        targetCombo = ui->screenCombo;
+        break;
     }
 
     targetCombo->clear();
@@ -86,6 +90,15 @@ void CdoSampleAppWindow::onRemotePreviewSinkChanged(QString sinkId)
     }
 }
 
+void CdoSampleAppWindow::onRemoteScreenSinkChanged(QString sinkId)
+{
+    qDebug() << "Rendering remote screen sink with id: " << sinkId;
+    if (!sinkId.isEmpty())
+    {
+        ui->remoteRenderer->startRender(sinkId.toStdString(), false);
+    }
+}
+
 void CdoSampleAppWindow::onConnectClicked()
 {
     qDebug() << "Establishing a connection";
@@ -100,12 +113,24 @@ void CdoSampleAppWindow::onConnected()
     qDebug() << "Connection established";
     ui->connectBtn->setEnabled(false);
     ui->disconnectBtn->setEnabled(true);
+    if (ui->publishScreenChck->checkState()) onScreenPublishStateChanged(true);
 }
 
 void CdoSampleAppWindow::onDisconnected()
 {
     ui->connectBtn->setEnabled(true);
     ui->disconnectBtn->setEnabled(false);
+}
+
+void CdoSampleAppWindow::onScreenPublishStateChanged(bool state)
+{
+    QString sourceId = ui->screenCombo->itemData(ui->screenCombo->currentIndex()).toString();
+     _appController.screenPublishStateChanged(state, sourceId);
+}
+
+void CdoSampleAppWindow::onMessageReceived(QString msg)
+{
+    QMessageBox::information(this, "Message received", msg);
 }
 
 void CdoSampleAppWindow::setupBindings()
@@ -138,6 +163,8 @@ void CdoSampleAppWindow::setupBindings()
                      this, SLOT(onLocalPreviewSinkChanged(QString)));
     QObject::connect(&_appController, SIGNAL(remoteVideoSinkChanged(QString)),
                      this, SLOT(onRemotePreviewSinkChanged(QString)));
+    QObject::connect(&_appController, SIGNAL(remoteScreenSinkChanged(QString)),
+                     this, SLOT(onRemoteScreenSinkChanged(QString)));
 
     QObject::connect(ui->connectBtn, SIGNAL(clicked()),
                      this, SLOT(onConnectClicked()));
@@ -146,8 +173,11 @@ void CdoSampleAppWindow::setupBindings()
                      &_appController, SLOT(audioPublishStateChanged(bool)));
     QObject::connect(ui->publishVideoChck, SIGNAL(clicked(bool)),
                      &_appController, SLOT(videoPublishStateChanged(bool)));
+    QObject::connect(ui->publishScreenChck, SIGNAL(clicked(bool)),
+                     this, SLOT(onScreenPublishStateChanged(bool)));
+
+    QObject::connect(ui->sendMessageBtn, SIGNAL(clicked()),
+                     &_appController, SLOT(sendMessageClicked()));
+    QObject::connect(&_appController, SIGNAL(messageReceived(QString)),
+                     this, SLOT(onMessageReceived(QString)));
 }
-
-
-
-

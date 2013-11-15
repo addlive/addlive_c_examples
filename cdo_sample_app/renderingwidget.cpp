@@ -25,12 +25,13 @@ RenderingWidget::RenderingWidget(QWidget *parent) :
                      this, SLOT(update()));
 }
 
-void RenderingWidget::startRender(const std::string& sinkId)
+void RenderingWidget::startRender(const std::string& sinkId, bool mirror)
 {
     if (_started)
     {
         // new renderer started as soon as old one stopped
         _deferredSinkId = sinkId;
+        _deferredMirror = mirror;
         stopRender();
         return;
     }
@@ -40,7 +41,7 @@ void RenderingWidget::startRender(const std::string& sinkId)
     ADLRenderRequest rRequest;
     ADLHelpers::stdString2ADLString(&rRequest.sinkId, sinkId);
     ADLHelpers::stdString2ADLString(&rRequest.filter, "fast_bilinear");
-    rRequest.mirror = true; rRequest.invalidateCallback =
+    rRequest.mirror = mirror; rRequest.invalidateCallback =
     &RenderingWidget::invalidateClbck; rRequest.opaque = this;
     rRequest.windowHandle = NULL;
     adl_render_sink(&RenderingWidget::renderStarted, _platformHandle, this,
@@ -136,7 +137,7 @@ void RenderingWidget::renderStoppedSlot()
     _started = false;
     if (!_deferredSinkId.empty())
     {
-        startRender(_deferredSinkId);
+        startRender(_deferredSinkId, _deferredMirror);
         _deferredSinkId = "";
     }
 }

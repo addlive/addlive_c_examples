@@ -26,16 +26,18 @@ public:
     void getVideoCaptureDeviceNames();
     void getAudioCaptureDeviceNames();
     void getAudioOutputDeviceNames();
+    void getScreenCaptureSources();
 
     void setVideoCaptureDevice(const std::string& devId);
     void setAudioCaptureDevice(const std::string& devId);
     void setAudioOutputDevice(const std::string& devId);
     void playTestSound();
+    void sendMessage(const std::string& scopeId);
 
     void connect(ADLConnectionDescriptor* descr, const std::string& scopeId);
     void disconnect(const std::string& scopeId);
 
-    void publish(const std::string& scopeId, const std::string& what);
+    void publish(const std::string& scopeId, const std::string& what, ADLMediaPublishOptions* opts = NULL);
     void unpublish(const std::string& scopeId, const std::string& what);
 
 signals:
@@ -44,10 +46,12 @@ signals:
     void audioCaptureDeviceListChanged(QVariantMap);
     void audioOutputDeviceListChanged(QVariantMap);
     void videoCaptureDeviceListChanged(QVariantMap);
+    void screenCaptureSourceListChanged(QVariantMap);
 
     void videoCaptureDeviceSet();
     void audioCaptureDeviceSet();
     void audioOutputDeviceSet();
+    void screenCaptureSourceSet();
 
     void localPreviewStarted(QString);
 
@@ -74,6 +78,8 @@ private:
     static void onAudioOutputDevices(void* o, const ADLError* e, ADLDevice* devs,
                           size_t len);
     static void onVideoCaptureDevices(void* o, const ADLError* e, ADLDevice* devs,
+                          size_t len);
+    static void onScreenCaptureSources(void* o, const ADLError* e, ADLScreenCaptureSource* srcs,
                           size_t len);
 
     static void onLocalPreviewStarted(void* o, const ADLError* e,

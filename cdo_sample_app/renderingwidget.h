@@ -11,7 +11,7 @@ class RenderingWidget : public QWidget
 public:
     explicit RenderingWidget(QWidget *parent = 0);
     
-    void startRender(const std::string& sinkId);
+    void startRender(const std::string& sinkId, bool mirror=true);
 
     void stopRender();
 
@@ -40,6 +40,7 @@ private:
 
     ADLH _platformHandle;
     std::string _deferredSinkId;
+    bool _deferredMirror;
     int _rendererId;
     bool _started;
 };

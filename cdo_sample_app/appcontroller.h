@@ -11,7 +11,7 @@
 
 enum MediaDeviceType
 {
-    AUDIO_IN, AUDIO_OUT, VIDEO_IN
+    AUDIO_IN, AUDIO_OUT, VIDEO_IN, SCREEN
 };
 
 class AppController : public QObject
@@ -37,8 +37,10 @@ signals:
 
     void localVideoSinkChanged(QString);
     void remoteVideoSinkChanged(QString);
+    void remoteScreenSinkChanged(QString);
     void connected();
     void disconnected();
+    void messageReceived(QString msg);
 
 public slots:
 
@@ -48,8 +50,10 @@ public slots:
     void playTestSndClicked();
     void videoPublishStateChanged(bool state);
     void audioPublishStateChanged(bool state);
+    void screenPublishStateChanged(bool state, QString sourceId);
 
     void onVideoDevices(QVariantMap devs);
+    void onScreenCaptureSources(QVariantMap srcs);
     void onAudioCaptureDevices(QVariantMap devs);
     void onAudioOutputDevices(QVariantMap devs);
 
@@ -57,12 +61,15 @@ public slots:
     void onConnected(bool succ);
     void onDisconnected();
 
+    void sendMessageClicked();
 private:
 
     static void onUserEvent(void* opaque, const ADLUserStateChangedEvent*);
     static void onMediaEvent(void* opaque, const ADLUserStateChangedEvent*);
+    static void onMessageEvent(void* opaque, const ADLMessageEvent*);
     void onUserEvent(const ADLUserStateChangedEvent*);
     void onMediaEvent(const ADLUserStateChangedEvent*);
+    void onMessageEvent(const ADLMessageEvent*);
 
 
     CloudeoCtrl _cdoCtrl;

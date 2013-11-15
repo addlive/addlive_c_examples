@@ -26,6 +26,19 @@ QVariantMap devsMap(ADLDevice* devs, size_t len)
     return qDevs;
 }
 
+QVariantMap srcsMap(ADLScreenCaptureSource* srcs, size_t len)
+{
+    QVariantMap qDevs;
+    for (size_t i = 0; i < len; ++i)
+    {
+        std::string id = ADLHelpers::ADLString2Std(&(srcs[i].id));
+        std::string label = ADLHelpers::ADLString2Std(&(srcs[i].title));
+        qDevs[QString::fromUtf8(id.c_str())] =
+                QString::fromUtf8(label.c_str());
+    }
+    return qDevs;
+}
+
 void nopRHandler(void*, const ADLError*)
 {
 }
@@ -59,6 +72,12 @@ void CloudeoCtrl::getVideoCaptureDeviceNames()
 {
     adl_get_video_capture_device_names(&CloudeoCtrl::onVideoCaptureDevices,
                                        _platformHandle, this);
+}
+
+void CloudeoCtrl::getScreenCaptureSources()
+{
+    adl_get_screen_capture_sources(&CloudeoCtrl::onScreenCaptureSources,
+                                       _platformHandle, this, 100);
 }
 
 void CloudeoCtrl::getAudioCaptureDeviceNames()
@@ -143,12 +162,12 @@ void CloudeoCtrl::disconnect(const std::string& scopeId)
 }
 
 
-void CloudeoCtrl::publish(const std::string& scopeId, const std::string& what)
+void CloudeoCtrl::publish(const std::string& scopeId, const std::string& what, ADLMediaPublishOptions* opts)
 {
     ADLString cdoScopeId = ADLHelpers::stdString2ADLString(scopeId);
     ADLString cdoWhat = ADLHelpers::stdString2ADLString(what);
     adl_publish(&nopRHandler, _platformHandle, 0,
-                &cdoScopeId, &cdoWhat, NULL);
+                &cdoScopeId, &cdoWhat, opts);
 }
 
 void CloudeoCtrl::unpublish(const std::string& scopeId, const std::string& what)
@@ -214,6 +233,14 @@ void CloudeoCtrl::onVideoCaptureDevices(void* o, const ADLError*,
     CloudeoCtrl* self = (CloudeoCtrl*)o;
     // emitting signal
     self->videoCaptureDeviceListChanged(devsMap(devs, len));
+}
+
+void CloudeoCtrl::onScreenCaptureSources(void* o, const ADLError*,
+                            ADLScreenCaptureSource* devs, size_t len)
+{
+    CloudeoCtrl* self = (CloudeoCtrl*)o;
+    // emitting signal
+    self->screenCaptureSourceListChanged(srcsMap(devs, len));
 }
 
 void CloudeoCtrl::onVideoCaptureDeviceSet(void* o, const ADLError* err)
@@ -286,4 +313,11 @@ void CloudeoCtrl::onDisconnected(void* o, const ADLError*)
 void CloudeoCtrl::onAppIdSet(void*, const ADLError*)
 {
     qDebug() << "Application ID set";
+}
+
+void CloudeoCtrl::sendMessage(const std::string& scopeId)
+{
+    ADLString cdoScopeId = ADLHelpers::stdString2ADLString(scopeId);
+    char message[512] = "Test message";
+    adl_send_message(&nopRHandler, _platformHandle, this, &cdoScopeId, message, strlen(message), NULL);
 }
