@@ -4,7 +4,7 @@ Sample application for AddLive desktop SDK on Qt
 Build instructions:
 
 - clone this repo
-- download https://s3.amazonaws.com/api.addlive.com/beta/AddLive_sdk-win.zip and unpack to cloned repo root (as is, i.e. it should be a directory in the repo root)
+- get SDK archive (AddLive\_sdk-win.zip) and unpack to cloned repo root (as is, i.e. it should be a directory in the repo root)
 - install Qt SDK with QtCreator (Qt 4.8.x only is supported at the moment)
 - open cdo\_sample\_app/cdo\_sample\_app.pro in QtCreator
 - adjust AddLive key, application ID and streamer address in addlivesdkparams.h
