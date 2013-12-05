@@ -9,9 +9,8 @@ namespace addlive
 const char gAddLiveSdkDirectoryName[] = "AddLive_sdk-win";
 
 // connection parameters
-const int gAppId = 1;
+const int gAppId = 1; //< change to proper application ID
 const std::string gAddLiveKey = "your key here";
-const std::string gStreamerAddress = "192.168.1.33:7000";
 
 // video uplink stream parameters
 const int gMaxVideoWidth = 640;

@@ -60,9 +60,7 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.authDetails.userId = uId;
     descr.authDetails.salt = ADLHelpers::stdString2ADLString("Some Salt 323234#@");
     descr.authDetails.expires = time(NULL) + 300000;
-//    descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
-    std::string scopeURL = addlive::gStreamerAddress + "/" + scopeId.toStdString();
-    ADLHelpers::stdString2ADLString(&descr.url, scopeURL);
+    descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
 
     descr.videoStream.maxWidth = addlive::gMaxVideoWidth;
     descr.videoStream.maxHeight = addlive::gMaxVideoHeight;
