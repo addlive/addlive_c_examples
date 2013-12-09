@@ -41,6 +41,8 @@ signals:
     void connected();
     void disconnected();
     void messageReceived(QString msg);
+    void connectionLost(int errCode, QString errMessage);
+    void sessionReconnected();
 
 public slots:
 
@@ -67,10 +69,13 @@ private:
     static void onUserEvent(void* opaque, const ADLUserStateChangedEvent*);
     static void onMediaEvent(void* opaque, const ADLUserStateChangedEvent*);
     static void onMessageEvent(void* opaque, const ADLMessageEvent*);
+    static void onConnectionLost(void* opaque, const ADLConnectionLostEvent*);
+    static void onSessionReconnected(void* opaque, const ADLSessionReconnectedEvent*);
     void onUserEvent(const ADLUserStateChangedEvent*);
     void onMediaEvent(const ADLUserStateChangedEvent*);
     void onMessageEvent(const ADLMessageEvent*);
-
+    void onConnectionLost(const ADLConnectionLostEvent*);
+    void onSessionReconnected(const ADLSessionReconnectedEvent*);
 
     CloudeoCtrl _cdoCtrl;
     bool _connected;

@@ -107,6 +107,18 @@ void AppController::onMessageEvent(void* opaque,
     ((AppController*) opaque)->onMessageEvent(e);
 }
 
+void AppController::onConnectionLost(void* opaque,
+                                   const ADLConnectionLostEvent* e)
+{
+    ((AppController*) opaque)->onConnectionLost(e);
+}
+
+void AppController::onSessionReconnected(void* opaque,
+                                         const ADLSessionReconnectedEvent* e)
+{
+    ((AppController*) opaque)->onSessionReconnected(e);
+}
+
 
 /**
   * Slots
@@ -200,6 +212,7 @@ void AppController::onPlatformReady(QString version)
     listener.onUserEvent = &AppController::onUserEvent;
     listener.onMediaStreamEvent = &AppController::onMediaEvent;
     listener.onMessage = &AppController::onMessageEvent;
+    listener.onSessionReconnected = &AppController::onSessionReconnected;
     listener.opaque = this;
     _cdoCtrl.addPlatformListener(&listener);
     _cdoCtrl.getVideoCaptureDeviceNames();
@@ -300,3 +313,19 @@ void AppController::onMessageEvent(const ADLMessageEvent* e)
     this->messageReceived(msg);
 }
 
+void AppController::onConnectionLost(const ADLConnectionLostEvent* e)
+{
+    QString scopeId = ADLHelpers::ADLString2QString(&e->scopeId);
+    QString errMessage = ADLHelpers::ADLString2QString(&e->errMessage);
+    qDebug() << "Got connection lost event for scope " << scopeId
+             << " error code " << e->errCode << ", " << errMessage
+             << ", willReconnect: " << (e->willReconnect ? "true" : "false");
+    this->connectionLost(e->errCode, errMessage);
+}
+
+void AppController::onSessionReconnected(const ADLSessionReconnectedEvent* e)
+{
+    QString scopeId = ADLHelpers::ADLString2QString(&e->scopeId);
+    qDebug() << "Got sessionReconnected event in scope" << scopeId;
+    this->sessionReconnected();
+}

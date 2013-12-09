@@ -128,6 +128,14 @@ void CdoSampleAppWindow::onScreenPublishStateChanged(bool state)
      _appController.screenPublishStateChanged(state, sourceId);
 }
 
+void CdoSampleAppWindow::onConnectionLost(int errCode, QString errMessage)
+{
+}
+
+void CdoSampleAppWindow::onSessionReconnected()
+{
+}
+
 void CdoSampleAppWindow::onMessageReceived(QString msg)
 {
     QMessageBox::information(this, "Message received", msg);
@@ -158,6 +166,10 @@ void CdoSampleAppWindow::setupBindings()
                      this, SLOT(onConnected()));
     QObject::connect(&_appController, SIGNAL(disconnected()),
                      this, SLOT(onDisconnected()));
+    QObject::connect(&_appController, SIGNAL(connectionLost(int,QString)),
+                     this, SLOT(onConnectionLost(int,QString)));
+    QObject::connect(&_appController, SIGNAL(sessionReconnected()),
+                     this, SLOT(onSessionReconnected()));
 
     QObject::connect(&_appController, SIGNAL(localVideoSinkChanged(QString)),
                      this, SLOT(onLocalPreviewSinkChanged(QString)));
