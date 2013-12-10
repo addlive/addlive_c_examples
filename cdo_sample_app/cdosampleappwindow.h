@@ -35,8 +35,6 @@ public slots:
     void onConnected();
     void onDisconnected();
     void onMessageReceived(QString msg);
-    void onConnectionLost(int errCode, QString errMessage);
-    void onSessionReconnected();
 signals:
 
 private slots:
