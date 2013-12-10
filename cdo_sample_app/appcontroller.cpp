@@ -212,6 +212,7 @@ void AppController::onPlatformReady(QString version)
     listener.onUserEvent = &AppController::onUserEvent;
     listener.onMediaStreamEvent = &AppController::onMediaEvent;
     listener.onMessage = &AppController::onMessageEvent;
+    listener.onConnectionLost = &AppController::onConnectionLost;
     listener.onSessionReconnected = &AppController::onSessionReconnected;
     listener.opaque = this;
     _cdoCtrl.addPlatformListener(&listener);

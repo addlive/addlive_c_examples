@@ -55,6 +55,7 @@ void CloudeoCtrl::initPlatform()
 
     ADLInitOptions options = {{0},{0}};
     ADLHelpers::stdString2ADLString(&options.logicLibPath, appDir.toUtf8().data());
+//    ADLHelpers::stdString2ADLString(&options.streamerEndpointResolver, "https://cnc-beta.addlive.com/resolve_streamer.do");
     adl_init_platform(&CloudeoCtrl::onPlatformReady, &options, this);
 }
 
