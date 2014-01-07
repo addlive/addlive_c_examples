@@ -203,7 +203,9 @@ void AppController::onPlatformReady(QString version)
     listener.opaque = this;
     _cdoCtrl.addPlatformListener(&listener);
     _cdoCtrl.getVideoCaptureDeviceNames();
+#ifdef WIN32
     _cdoCtrl.getScreenCaptureSources();
+#endif
     _cdoCtrl.getAudioCaptureDeviceNames();
     _cdoCtrl.getAudioOutputDeviceNames();
 }
