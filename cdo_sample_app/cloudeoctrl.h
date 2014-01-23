@@ -18,6 +18,7 @@ public:
     CloudeoCtrl();
 
     void initPlatform();
+    void releasePlatform();
 
     void addPlatformListener(ADLServiceListener* listener);
 

@@ -10,12 +10,16 @@ CdoSampleAppWindow::CdoSampleAppWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setupBindings();
+#ifdef Q_WS_X11 // Screen sharing is not supported on linux
+   ui->publishScreenChck->setChecked(false);
+#endif
     _appController.initADL();
 }
 
 
 CdoSampleAppWindow::~CdoSampleAppWindow()
 {
+    _appController.releaseADL();
     delete ui;
 }
 

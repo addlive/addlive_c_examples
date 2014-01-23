@@ -18,6 +18,20 @@ public:
     static QString ADLString2QString(const ADLString* src);
 
     static bool stringEq(const ADLString* a, const std::string& b);
+    static void cloneVideoFrame(const ADLVideoFrame* src, ADLVideoFrame* dst);
+    static void freeVideoFrame(ADLVideoFrame* frame);
+};
+
+class ADLVideoFrameHolder
+{
+public:
+    ADLVideoFrameHolder(const ADLVideoFrame* src);
+    ADLVideoFrameHolder(const ADLVideoFrameHolder& src);
+    ~ADLVideoFrameHolder();
+
+    const ADLVideoFrame& data() const { return _data; }
+private:
+    ADLVideoFrame _data;
 };
 
 #endif // ADLHELPERS_H

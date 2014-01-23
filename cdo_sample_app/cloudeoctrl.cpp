@@ -59,6 +59,11 @@ void CloudeoCtrl::initPlatform()
     adl_init_platform(&CloudeoCtrl::onPlatformReady, &options, this);
 }
 
+void CloudeoCtrl::releasePlatform()
+{
+    adl_release_platform(_platformHandle);
+}
+
 ADLH CloudeoCtrl::getPlatformHandler() const
 {
     return _platformHandle;

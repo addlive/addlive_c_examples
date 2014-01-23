@@ -46,6 +46,12 @@ void AppController::initADL()
     _cdoCtrl.initPlatform();
 }
 
+void AppController::releaseADL()
+{
+    qDebug() << "Releasing ADL";
+    _cdoCtrl.releasePlatform();
+}
+
 void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
 {
     qDebug() << "Establishing a connection to scope with id: " << scopeId;

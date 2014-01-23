@@ -22,6 +22,7 @@ public:
     explicit AppController(QObject *parent = 0);
 
     void initADL();
+    void releaseADL();
 
     void connect(QString scopeId, bool pAudio, bool pVideo);
 

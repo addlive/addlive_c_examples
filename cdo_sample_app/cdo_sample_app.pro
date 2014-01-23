@@ -44,6 +44,7 @@ unix:!macx {
 #        -lvorbisenc -logg -lswscale -lavutil -lortp -lwebm
 #       -lboost_serialization
     INCLUDEPATH += $$(CLOUDEO_LIBS_HOME)/include
+    INCLUDEPATH += /home/igor/Projects/AddLive/addlive_3rdparty/include
 }
 
 INCLUDEPATH += $$ADL_HOME
