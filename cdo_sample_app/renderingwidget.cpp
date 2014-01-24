@@ -110,7 +110,6 @@ void RenderingWidget::setPlatformHandle(ADLH handle)
 
 void RenderingWidget::paintEvent(QPaintEvent *e)
 {
-    qDebug() << "paintEvent";
     if (_started)
     {
         QPoint global = mapTo(nativeParentWidget(), QPoint(0,0));
@@ -197,17 +196,9 @@ void RenderingWidget::renderStoppedSlot()
 void RenderingWidget::frameReceivedSlot(QSharedPointer<ADLVideoFrameHolder> frameHolder)
 {
     const ADLVideoFrame *frameData = &frameHolder->data();
-    qDebug() << "Frame received " << frameData->width << "x" << frameData->height;
-    // TODO: we shouldn't do this - this is to be fixed in framework
-    if (frameData->width > 3000 || frameData->height > 2000)
-    {
-        qDebug() << "Invalid frame";
-        return;
-    }
     if (frameData->format == PIC_FORMAT_YUV422) // Actually it is YUY2
     {
         _frame = QImage(QSize(frameData->width, frameData->height), QImage::Format_ARGB32);
-        qDebug() << "Strides: " << frameData->strides[0] << " " << _frame.bytesPerLine();
         libyuv::YUY2ToARGB(frameData->planes[0], frameData->strides[0], _frame.bits(),
                 _frame.bytesPerLine(), frameData->width, frameData->height);
     }

@@ -37,14 +37,13 @@ unix:!macx {
 
 LIBS += -L$$ADL_HOME -ladl_sdk
 unix:!macx {
-    LIBS += -L$$ADL_HOME -L/home/igor/Projects/AddLive/addlive_3rdparty/libs  -ladl_sdk_logic -ladl_stub -lsmplogic -lsmpmedia  -lsmpcommunication  -lsmcommon  -ljsoncpp_common\
+    LIBS += -L$$ADL_HOME -ladl_sdk_logic -ladl_stub -lsmplogic -lsmpmedia  -lsmpcommunication  -lsmcommon  -ljsoncpp_common\
         -lboost_system -lboost_log -lboost_program_options -lboost_date_time\
         -lboost_thread -lboost_chrono -lboost_filesystem -lprotobuf-lite -lwebrtc_voice -lcurl -lssl -lcrypto -lyuv -lvpx\
         -lstun -lsrtp -ldl -lX11
 #        -lvorbisenc -logg -lswscale -lavutil -lortp -lwebm
 #       -lboost_serialization
-    INCLUDEPATH += $$(CLOUDEO_LIBS_HOME)/include
-    INCLUDEPATH += /home/igor/Projects/AddLive/addlive_3rdparty/include
+#    INCLUDEPATH += $$(CLOUDEO_LIBS_HOME)/include
 }
 
 INCLUDEPATH += $$ADL_HOME
