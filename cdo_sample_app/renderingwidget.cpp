@@ -9,9 +9,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#endif
-
-#ifdef Q_WS_X11
+#else
 #include <libyuv/convert.h>
 #include <libyuv/convert_argb.h>
 #include <libyuv/convert_from.h>
@@ -61,9 +59,9 @@ void RenderingWidget::startRenderInternal(const std::string& sinkId, bool mirror
 {
     qDebug() << "Starting renderer on sink " << sinkId.c_str();
 
-#ifdef Q_WS_WIN
+#ifdef _WIN32
     startNativeRender(sinkId, mirror);
-#elif defined(Q_WS_X11)
+#else
     startDirectRender(sinkId, mirror);
 #endif
 }
@@ -121,12 +119,12 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
         req.rendererId = _rendererId;
 
 
-#ifdef Q_WS_WIN
+#ifdef _WIN32
         QPainter painter(this);
         HDC hdc = painter.paintEngine()->getDC();
         req.windowHandle = hdc;
         adl_draw(_platformHandle, &req);
-#elif defined(Q_WS_X11)
+#else
         QPainter painter(this);
         painter.drawImage(rect(), _frame);
         painter.end();

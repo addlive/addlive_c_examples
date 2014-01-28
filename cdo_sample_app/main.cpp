@@ -1,4 +1,4 @@
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "cdosampleappwindow.h"
 
 int main(int argc, char *argv[])

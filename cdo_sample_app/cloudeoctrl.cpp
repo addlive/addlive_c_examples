@@ -211,7 +211,7 @@ void CloudeoCtrl::onVersion(void* o, const ADLError*, const ADLString* v)
     try
     {
         // emit signal
-        ctrl->platformReady(QString::fromAscii(v->body, v->length));
+        ctrl->platformReady(QString::fromUtf8(v->body, v->length));
     }
     catch(const std::exception& exception)
     {
