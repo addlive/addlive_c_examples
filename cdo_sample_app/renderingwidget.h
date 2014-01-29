@@ -3,18 +3,16 @@
 
 #include <QMetaType>
 #include <QWidget>
+#include <QMutex>
 #include <string>
 #include <addlive_sdk.h>
 #include "cdohelpers.h"
-
-Q_DECLARE_METATYPE(QSharedPointer<ADLVideoFrameHolder>)
 
 class RenderingWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit RenderingWidget(QWidget *parent = 0);
-    virtual ~RenderingWidget();
     
     void startRender(const std::string& sinkId, bool mirror=true);
 
@@ -31,16 +29,15 @@ signals:
     void renderStartedSignal(int rendererId);
     void renderStoppedSignal();
     void updateSignal();
-    void frameReceivedSignal(QSharedPointer<ADLVideoFrameHolder> frame);
 
 public slots:
     
     void renderStartedSlot(int);
     void renderStoppedSlot();
-    void frameReceivedSlot(QSharedPointer<ADLVideoFrameHolder> frame);
 
 private:
 
+    void frameReceived(const ADLVideoFrame* frame);
     // TODO: extract start*Render* methods into a separate class
     void startRenderInternal(const std::string& sinkId, bool mirror);
     void startNativeRender(const std::string& sinkId, bool mirror);
@@ -58,6 +55,7 @@ private:
     int _rendererId;
     bool _started;
     QImage _frame;
+    QMutex _frameLock;
 };
 
 #endif // RENDERINGWIDGET_H

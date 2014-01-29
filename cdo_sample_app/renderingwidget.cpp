@@ -25,21 +25,12 @@ RenderingWidget::RenderingWidget(QWidget *parent) :
     setAttribute(Qt::WA_PaintOnScreen, true);
 #endif
 
-    qRegisterMetaType<QSharedPointer<ADLVideoFrameHolder> >("QSharedPointer<ADLVideoFrameHolder>");
     QObject::connect(this, SIGNAL(renderStartedSignal(int)),
                      this, SLOT(renderStartedSlot(int)));
     QObject::connect(this, SIGNAL(renderStoppedSignal()),
                      this, SLOT(renderStoppedSlot()));
     QObject::connect(this, SIGNAL(updateSignal()),
                      this, SLOT(update()));
-    QObject::connect(this, SIGNAL(frameReceivedSignal(QSharedPointer<ADLVideoFrameHolder>)),
-                     this, SLOT(frameReceivedSlot(QSharedPointer<ADLVideoFrameHolder>)));
-}
-
-RenderingWidget::~RenderingWidget()
-{
-// Platform is already released here, so the call below may lead to crash
-//    stopRender();
 }
 
 void RenderingWidget::startRender(const std::string& sinkId, bool mirror)
@@ -126,7 +117,10 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
         adl_draw(_platformHandle, &req);
 #else
         QPainter painter(this);
-        painter.drawImage(rect(), _frame);
+        {
+            QMutexLocker locker(&_frameLock);
+            painter.drawImage(rect(), _frame);
+        }
         painter.end();
 #endif
     // TODO: implement renderer for OSX
@@ -157,7 +151,7 @@ void RenderingWidget::invalidateClbck(void* o)
 
 void RenderingWidget::onFrame(void* o, const ADLVideoFrame* frame)
 {
-    ((RenderingWidget*)o)->frameReceivedSignal(QSharedPointer<ADLVideoFrameHolder>(new ADLVideoFrameHolder(frame)));
+    ((RenderingWidget*)o)->frameReceived(frame);
 }
 
 void RenderingWidget::renderStarted(void* o, const ADLError*,
@@ -191,17 +185,19 @@ void RenderingWidget::renderStoppedSlot()
     }
 }
 
-void RenderingWidget::frameReceivedSlot(QSharedPointer<ADLVideoFrameHolder> frameHolder)
+void RenderingWidget::frameReceived(const ADLVideoFrame* frame)
 {
-    const ADLVideoFrame *frameData = &frameHolder->data();
+    const ADLVideoFrame *frameData = frame;
     if (frameData->format == PIC_FORMAT_YUV422) // Actually it is YUY2
     {
+        QMutexLocker locker(&_frameLock);
         _frame = QImage(QSize(frameData->width, frameData->height), QImage::Format_ARGB32);
         libyuv::YUY2ToARGB(frameData->planes[0], frameData->strides[0], _frame.bits(),
                 _frame.bytesPerLine(), frameData->width, frameData->height);
     }
     else if (frameData->format == PIC_FORMAT_YUV420)
     {
+        QMutexLocker locker(&_frameLock);
         _frame = QImage(QSize(frameData->width, frameData->height), QImage::Format_ARGB32);
         libyuv::I420ToARGB(frameData->planes[0], frameData->strides[0], frameData->planes[1], frameData->strides[1],
                 frameData->planes[2], frameData->strides[2], _frame.bits(),
