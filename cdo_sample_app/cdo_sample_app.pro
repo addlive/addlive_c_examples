@@ -37,7 +37,7 @@ unix:!macx {
 }
 
 
-LIBS += -L$$ADL_HOME -ladl_sdk
+LIBS += -L$$ADL_HOME -ladl_sdk -lyuv
 unix:!macx {
     LIBS += -L$$ADL_HOME -ladl_framework -lcurl -ldl -lX11
 #        -lvorbisenc -logg -lswscale -lavutil -lortp -lwebm
@@ -46,6 +46,8 @@ unix:!macx {
 }
 
 INCLUDEPATH += $$ADL_HOME
+
+DEFINES += ADL_DIRECT_RENDERING=1
 
 #QMAKE_CXXFLAGS += -fsanitize=thread -fPIE
 #QMAKE_LFLAGS += -pie -fsanitize=thread

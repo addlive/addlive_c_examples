@@ -9,7 +9,9 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#else
+#endif
+
+#ifdef ADL_DIRECT_RENDERING
 #include <libyuv/convert.h>
 #include <libyuv/convert_argb.h>
 #include <libyuv/convert_from.h>
@@ -50,7 +52,7 @@ void RenderingWidget::startRenderInternal(const std::string& sinkId, bool mirror
 {
     qDebug() << "Starting renderer on sink " << sinkId.c_str();
 
-#ifdef _WIN32
+#ifndef ADL_DIRECT_RENDERING
     startNativeRender(sinkId, mirror);
 #else
     startDirectRender(sinkId, mirror);
@@ -110,18 +112,18 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
         req.rendererId = _rendererId;
 
 
-#ifdef _WIN32
-        QPainter painter(this);
-        HDC hdc = painter.paintEngine()->getDC();
-        req.windowHandle = hdc;
-        adl_draw(_platformHandle, &req);
-#else
+#ifdef ADL_DIRECT_RENDERING
         QPainter painter(this);
         {
             QMutexLocker locker(&_frameLock);
             painter.drawImage(rect(), _frame);
         }
         painter.end();
+#elif defined(_WIN32)
+        QPainter painter(this);
+        HDC hdc = painter.paintEngine()->getDC();
+        req.windowHandle = hdc;
+        adl_draw(_platformHandle, &req);
 #endif
     // TODO: implement renderer for OSX
 
@@ -185,27 +187,37 @@ void RenderingWidget::renderStoppedSlot()
     }
 }
 
-void RenderingWidget::frameReceived(const ADLVideoFrame* frame)
+void RenderingWidget::updateFrame(const ADLVideoFrame* frameData)
 {
-    const ADLVideoFrame *frameData = frame;
+    QMutexLocker locker(&_frameLock);
+    _frame = QImage(QSize(frameData->width, frameData->height), QImage::Format_ARGB32);
     if (frameData->format == PIC_FORMAT_YUV422) // Actually it is YUY2
     {
-        QMutexLocker locker(&_frameLock);
-        _frame = QImage(QSize(frameData->width, frameData->height), QImage::Format_ARGB32);
         libyuv::YUY2ToARGB(frameData->planes[0], frameData->strides[0], _frame.bits(),
                 _frame.bytesPerLine(), frameData->width, frameData->height);
     }
     else if (frameData->format == PIC_FORMAT_YUV420)
     {
-        QMutexLocker locker(&_frameLock);
-        _frame = QImage(QSize(frameData->width, frameData->height), QImage::Format_ARGB32);
         libyuv::I420ToARGB(frameData->planes[0], frameData->strides[0], frameData->planes[1], frameData->strides[1],
                 frameData->planes[2], frameData->strides[2], _frame.bits(),
                 _frame.bytesPerLine(), frameData->width, frameData->height);
     }
+    else if (frameData->format == PIC_FORMAT_BGR24)
+    {
+        libyuv::RGB24ToARGB(frameData->planes[0], frameData->strides[0], _frame.bits(),
+                _frame.bytesPerLine(), frameData->width, -frameData->height);
+    }
     else
     {
+        _frame = QImage();
         qDebug() << "Unsupported frame format: " << frameData->format;
     }
+}
+
+void RenderingWidget::frameReceived(const ADLVideoFrame* frame)
+{
+#ifdef ADL_DIRECT_RENDERING
+    updateFrame(frame);
     updateSignal();
+#endif
 }
