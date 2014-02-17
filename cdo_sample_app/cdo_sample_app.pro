@@ -37,7 +37,7 @@ unix:!macx {
 }
 
 
-LIBS += -L$$ADL_HOME -ladl_sdk -lyuv
+win32: LIBS += -L$$ADL_HOME -ladl_sdk -lyuv
 unix:!macx {
     LIBS += -L$$ADL_HOME -ladl_framework -lcurl -ldl -lX11
 #        -lvorbisenc -logg -lswscale -lavutil -lortp -lwebm
