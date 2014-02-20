@@ -26,19 +26,19 @@ CdoSampleAppWindow::~CdoSampleAppWindow()
 void CdoSampleAppWindow::onVideoDeviceSelected(int index)
 {
     QString deviceId = ui->camCombo->itemData(index).toString();
-    _appController.setVideoCaptureDevice(deviceId.toStdString());
+    _appController.setVideoCaptureDevice(std::string(deviceId.toUtf8()));
 }
 
 void CdoSampleAppWindow::onMicSelected(int index)
 {
     QString deviceId = ui->micCombo->itemData(index).toString();
-    _appController.setAudioCaptureDevice(deviceId.toStdString());
+    _appController.setAudioCaptureDevice(std::string(deviceId.toUtf8()));
 }
 
 void CdoSampleAppWindow::onSpeakerSelected(int index)
 {
     QString deviceId = ui->spkCombo->itemData(index).toString();
-    _appController.setAudioOutputDevice(deviceId.toStdString());
+    _appController.setAudioOutputDevice(std::string(deviceId.toUtf8()));
 }
 
 void CdoSampleAppWindow::onMediaDevicesListChanged(int devType,
@@ -82,7 +82,7 @@ void CdoSampleAppWindow::onADLPlatformReady(void* pH, QString v)
 void CdoSampleAppWindow::onLocalPreviewSinkChanged(QString sinkId)
 {
     qDebug() << "Rendering local sink with id: " << sinkId;
-    ui->localRenderer->startRender(sinkId.toStdString());
+    ui->localRenderer->startRender(std::string(sinkId.toUtf8()));
 }
 
 void CdoSampleAppWindow::onRemotePreviewSinkChanged(QString sinkId)
@@ -90,7 +90,7 @@ void CdoSampleAppWindow::onRemotePreviewSinkChanged(QString sinkId)
     qDebug() << "Rendering remote sink with id: " << sinkId;
     if (!sinkId.isEmpty())
     {
-        ui->remoteRenderer->startRender(sinkId.toStdString());
+        ui->remoteRenderer->startRender(std::string(sinkId.toUtf8()));
     }
 }
 
@@ -99,7 +99,7 @@ void CdoSampleAppWindow::onRemoteScreenSinkChanged(QString sinkId)
     qDebug() << "Rendering remote screen sink with id: " << sinkId;
     if (!sinkId.isEmpty())
     {
-        ui->remoteRenderer->startRender(sinkId.toStdString(), false);
+        ui->remoteRenderer->startRender(std::string(sinkId.toUtf8()), false);
     }
 }
 

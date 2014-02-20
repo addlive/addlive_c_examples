@@ -66,15 +66,15 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.authDetails.userId = uId;
     descr.authDetails.salt = ADLHelpers::stdString2ADLString("Some Salt 323234#@");
     descr.authDetails.expires = time(NULL) + 300000;
-    descr.scopeId = ADLHelpers::stdString2ADLString(scopeId.toStdString());
+    descr.scopeId = ADLHelpers::stdString2ADLString(std::string(scopeId.toUtf8()));
 
     descr.videoStream.maxWidth = addlive::gMaxVideoWidth;
     descr.videoStream.maxHeight = addlive::gMaxVideoHeight;
     descr.videoStream.maxFps = addlive::gMaxFps;
     descr.videoStream.useAdaptation = addlive::gUseAdaptation;
 
-    _scopeId = scopeId.toStdString();
-    _cdoCtrl.connect(&descr, scopeId.toStdString());
+    _scopeId = scopeId.toUtf8();
+    _cdoCtrl.connect(&descr, std::string(scopeId.toUtf8()));
 }
 
 void AppController::setVideoCaptureDevice(const std::string& deviceId)
@@ -159,7 +159,7 @@ void AppController::screenPublishStateChanged(bool state, QString sourceId)
             qDebug() << "Publishing screen";
             ADLMediaPublishOptions opts;
             memset(&opts, 0, sizeof(opts));
-            ADLHelpers::stdString2ADLString(&opts.windowId, sourceId.toStdString());
+            ADLHelpers::stdString2ADLString(&opts.windowId, std::string(sourceId.toUtf8()));
             opts.nativeWidth = 1024;
             _cdoCtrl.publish(_scopeId, ADL_MEDIA_TYPE_SCREEN, &opts);
         }
