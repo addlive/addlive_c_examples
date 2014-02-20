@@ -73,7 +73,7 @@ void AppController::connect(QString scopeId, bool pAudio, bool pVideo)
     descr.videoStream.maxFps = addlive::gMaxFps;
     descr.videoStream.useAdaptation = addlive::gUseAdaptation;
 
-    _scopeId = scopeId.toUtf8();
+    _scopeId = std::string(scopeId.toUtf8());
     _cdoCtrl.connect(&descr, std::string(scopeId.toUtf8()));
 }
 
@@ -209,9 +209,7 @@ void AppController::onPlatformReady(QString version)
     listener.opaque = this;
     _cdoCtrl.addPlatformListener(&listener);
     _cdoCtrl.getVideoCaptureDeviceNames();
-#ifdef WIN32
     _cdoCtrl.getScreenCaptureSources();
-#endif
     _cdoCtrl.getAudioCaptureDeviceNames();
     _cdoCtrl.getAudioOutputDeviceNames();
 }

@@ -39,7 +39,7 @@ unix:!macx {
 
 win32: LIBS += -L$$ADL_HOME -ladl_sdk -lyuv
 unix:!macx {
-    LIBS += -L$$ADL_HOME -ladl_framework -lcurl -ldl -lX11
+    LIBS += -L$$ADL_HOME -ladl_framework -lcurl -ldl -lX11 -lpng -lz
 #        -lvorbisenc -logg -lswscale -lavutil -lortp -lwebm
 #       -lboost_serialization
 #    INCLUDEPATH += $$(CLOUDEO_LIBS_HOME)/include

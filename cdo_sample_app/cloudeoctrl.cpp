@@ -25,7 +25,7 @@ QVariantMap devsMap(ADLDevice* devs, size_t len)
     }
     return qDevs;
 }
-#ifdef WIN32
+
 QVariantMap srcsMap(ADLScreenCaptureSource* srcs, size_t len)
 {
     QVariantMap qDevs;
@@ -38,7 +38,6 @@ QVariantMap srcsMap(ADLScreenCaptureSource* srcs, size_t len)
     }
     return qDevs;
 }
-#endif
 
 void nopRHandler(void*, const ADLError*)
 {
@@ -80,13 +79,11 @@ void CloudeoCtrl::getVideoCaptureDeviceNames()
                                        _platformHandle, this);
 }
 
-#ifdef WIN32
 void CloudeoCtrl::getScreenCaptureSources()
 {
     adl_get_screen_capture_sources(&CloudeoCtrl::onScreenCaptureSources,
                                        _platformHandle, this, 100);
 }
-#endif
 
 void CloudeoCtrl::getAudioCaptureDeviceNames()
 {
@@ -243,7 +240,6 @@ void CloudeoCtrl::onVideoCaptureDevices(void* o, const ADLError*,
     self->videoCaptureDeviceListChanged(devsMap(devs, len));
 }
 
-#ifdef WIN32
 void CloudeoCtrl::onScreenCaptureSources(void* o, const ADLError*,
                             ADLScreenCaptureSource* devs, size_t len)
 {
@@ -251,7 +247,6 @@ void CloudeoCtrl::onScreenCaptureSources(void* o, const ADLError*,
     // emitting signal
     self->screenCaptureSourceListChanged(srcsMap(devs, len));
 }
-#endif
 
 void CloudeoCtrl::onVideoCaptureDeviceSet(void* o, const ADLError* err)
 {

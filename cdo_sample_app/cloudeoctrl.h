@@ -27,9 +27,7 @@ public:
     void getVideoCaptureDeviceNames();
     void getAudioCaptureDeviceNames();
     void getAudioOutputDeviceNames();
-#ifdef WIN32
     void getScreenCaptureSources();
-#endif
 
     void setVideoCaptureDevice(const std::string& devId);
     void setAudioCaptureDevice(const std::string& devId);
@@ -82,10 +80,8 @@ private:
                           size_t len);
     static void onVideoCaptureDevices(void* o, const ADLError* e, ADLDevice* devs,
                           size_t len);
-#ifdef WIN32
     static void onScreenCaptureSources(void* o, const ADLError* e, ADLScreenCaptureSource* srcs,
                           size_t len);
-#endif
 
     static void onLocalPreviewStarted(void* o, const ADLError* e,
                                       const ADLString* v);
