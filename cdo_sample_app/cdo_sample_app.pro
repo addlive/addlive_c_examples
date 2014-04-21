@@ -13,7 +13,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        cdosampleappwindow.cpp \
+    cdosampleappwindow.cpp \
     renderingwidget.cpp \
     cloudeoctrl.cpp \
     cdohelpers.cpp \
@@ -36,13 +36,14 @@ unix:!macx {
     ADL_HOME = $$PWD/../AddLive_sdk-linux
 }
 
+unix:macx {
+    ADL_HOME = $$PWD/../AddLive_sdk-mac
+}
+
 
 win32: LIBS += -L$$ADL_HOME -ladl_sdk -lyuv
-unix:!macx {
-    LIBS += -L$$ADL_HOME -ladl_framework -lcurl -ldl -lX11 -lpng -lz
-#        -lvorbisenc -logg -lswscale -lavutil -lortp -lwebm
-#       -lboost_serialization
-#    INCLUDEPATH += $$(CLOUDEO_LIBS_HOME)/include
+unix: {
+    LIBS += -L$$ADL_HOME -ladl_sdk -lyuv -ljpeg_turbo
 }
 
 INCLUDEPATH += $$ADL_HOME
