@@ -37,7 +37,10 @@ public slots:
 
 private:
 
+#ifdef ADL_DIRECT_RENDERING
     void updateFrame(const ADLVideoFrame* frameData);
+#endif
+
     void frameReceived(const ADLVideoFrame* frame);
     // TODO: extract start*Render* methods into a separate class
     void startRenderInternal(const std::string& sinkId, bool mirror);

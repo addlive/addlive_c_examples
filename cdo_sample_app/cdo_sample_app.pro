@@ -41,14 +41,13 @@ unix:macx {
 }
 
 
-win32: LIBS += -L$$ADL_HOME -ladl_sdk -lyuv
+win32: LIBS += -L$$ADL_HOME -ladl_sdk
 unix: {
+    DEFINES += ADL_DIRECT_RENDERING=1
     LIBS += -L$$ADL_HOME -ladl_sdk -lyuv -ljpeg_turbo
 }
 
 INCLUDEPATH += $$ADL_HOME
-
-DEFINES += ADL_DIRECT_RENDERING=1
 
 #QMAKE_CXXFLAGS += -fsanitize=thread -fPIE
 #QMAKE_LFLAGS += -pie -fsanitize=thread

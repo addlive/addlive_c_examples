@@ -187,6 +187,8 @@ void RenderingWidget::renderStoppedSlot()
     }
 }
 
+#ifdef ADL_DIRECT_RENDERING
+
 void RenderingWidget::updateFrame(const ADLVideoFrame* frameData)
 {
     QMutexLocker locker(&_frameLock);
@@ -228,6 +230,7 @@ void RenderingWidget::updateFrame(const ADLVideoFrame* frameData)
         qDebug() << "Unsupported frame format: " << frameData->format;
     }
 }
+#endif
 
 void RenderingWidget::frameReceived(const ADLVideoFrame* frame)
 {
