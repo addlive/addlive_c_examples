@@ -1,5 +1,5 @@
-#include <renderingwidget.h>
-#include <cdohelpers.h>
+#include "renderingwidget.h"
+#include "cdohelpers.h"
 #include <QPaintEvent>
 #include <QPaintEngine>
 #include <QPainter>
@@ -120,12 +120,12 @@ void RenderingWidget::paintEvent(QPaintEvent *e)
         }
         painter.end();
 #elif defined(_WIN32)
-        QPainter painter(this);
-        HDC hdc = painter.paintEngine()->getDC();
+        HWND hwnd = (HWND)this->winId();
+        HDC hdc = GetDC(hwnd);
         req.windowHandle = hdc;
         adl_draw(_platformHandle, &req);
+        ReleaseDC(hwnd, hdc);
 #endif
-    // TODO: implement renderer for OSX
 
     }
     else

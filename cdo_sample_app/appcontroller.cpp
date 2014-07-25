@@ -1,6 +1,6 @@
-#include <appcontroller.h>
-#include <addlivesdkparams.h>
-#include <cdohelpers.h>
+#include "appcontroller.h"
+#include "addlivesdkparams.h"
+#include "cdohelpers.h"
 
 #include <QDebug>
 #include <QTime>

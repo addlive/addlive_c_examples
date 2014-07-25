@@ -2,7 +2,7 @@
 #define ADLSAMPLEAPPWINDOW_H
 
 #include <QMainWindow>
-#include <appcontroller.h>
+#include "appcontroller.h"
 #include <QMap>
 #include <QVariant>
 #include <QString>

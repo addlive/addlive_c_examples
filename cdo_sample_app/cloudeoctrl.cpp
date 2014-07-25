@@ -1,7 +1,7 @@
-#include <cloudeoctrl.h>
-#include <cdohelpers.h>
-#include <addlivesdkparams.h>
-#include <sha256.h>
+#include "cloudeoctrl.h"
+#include "cdohelpers.h"
+#include "addlivesdkparams.h"
+#include "sha256.h"
 
 #include <QDebug>
 #include <QCoreApplication>

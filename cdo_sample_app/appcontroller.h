@@ -1,7 +1,7 @@
 #ifndef APPCONTROLLER_H
 #define APPCONTROLLER_H
 
-#include <cloudeoctrl.h>
+#include "cloudeoctrl.h"
 #include <addlive_sdk.h>
 #include <QObject>
 #include <QVariant>
